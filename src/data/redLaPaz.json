@@ -1,0 +1,494 @@
+{
+  "estaciones": [
+    {
+      "id": "rio-seco",
+      "nombre": "Río Seco",
+      "x": 85,
+      "y": 218
+    },
+    {
+      "id": "upea",
+      "nombre": "UPEA",
+      "x": 158,
+      "y": 192
+    },
+    {
+      "id": "plaza-la-paz",
+      "nombre": "Plaza La Paz",
+      "x": 233,
+      "y": 191
+    },
+    {
+      "id": "plaza-la-libertad",
+      "nombre": "Plaza La Libertad",
+      "x": 306,
+      "y": 196,
+      "etiqueta": "abajo"
+    },
+    {
+      "id": "16-de-julio",
+      "nombre": "16 de Julio",
+      "x": 367,
+      "y": 212
+    },
+    {
+      "id": "cementerio",
+      "nombre": "Cementerio",
+      "x": 457,
+      "y": 210
+    },
+    {
+      "id": "central",
+      "nombre": "Central",
+      "x": 507,
+      "y": 158
+    },
+    {
+      "id": "armentia",
+      "nombre": "Armentia",
+      "x": 597,
+      "y": 155
+    },
+    {
+      "id": "periferica",
+      "nombre": "Periférica",
+      "x": 643,
+      "y": 106
+    },
+    {
+      "id": "villarroel",
+      "nombre": "Villarroel",
+      "x": 701,
+      "y": 71
+    },
+    {
+      "id": "busch",
+      "nombre": "Busch",
+      "x": 707,
+      "y": 161
+    },
+    {
+      "id": "las-villas",
+      "nombre": "Las Villas",
+      "x": 800,
+      "y": 201
+    },
+    {
+      "id": "triangular",
+      "nombre": "Triangular",
+      "x": 711,
+      "y": 256
+    },
+    {
+      "id": "del-poeta",
+      "nombre": "Del Poeta",
+      "x": 722,
+      "y": 327
+    },
+    {
+      "id": "teatro-al-aire-libre",
+      "nombre": "Teatro al Aire Libre",
+      "x": 660,
+      "y": 268,
+      "etiqueta": "izquierda"
+    },
+    {
+      "id": "prado",
+      "nombre": "Prado",
+      "x": 583,
+      "y": 222
+    },
+    {
+      "id": "libertador",
+      "nombre": "Libertador",
+      "x": 757,
+      "y": 433
+    },
+    {
+      "id": "faro-murillo",
+      "nombre": "Faro Murillo",
+      "x": 426,
+      "y": 320
+    },
+    {
+      "id": "6-de-marzo",
+      "nombre": "6 de Marzo",
+      "x": 309,
+      "y": 349
+    },
+    {
+      "id": "obelisco",
+      "nombre": "Obelisco",
+      "x": 531,
+      "y": 251
+    },
+    {
+      "id": "mirador",
+      "nombre": "Mirador",
+      "x": 460,
+      "y": 432
+    },
+    {
+      "id": "buenos-aires",
+      "nombre": "Buenos Aires",
+      "x": 573,
+      "y": 415
+    },
+    {
+      "id": "sopocachi",
+      "nombre": "Sopocachi",
+      "x": 662,
+      "y": 405
+    },
+    {
+      "id": "alto-obrajes",
+      "nombre": "Alto Obrajes",
+      "x": 839,
+      "y": 473
+    },
+    {
+      "id": "obrajes",
+      "nombre": "Obrajes",
+      "x": 900,
+      "y": 513
+    },
+    {
+      "id": "irpavi",
+      "nombre": "Irpavi",
+      "x": 970,
+      "y": 606
+    }
+  ],
+  "puntosExtra": [
+    {
+      "id": "ucb",
+      "nombre": "UCB",
+      "x": 790,
+      "y": 530,
+      "conexiones": [
+        {
+          "con": "libertador",
+          "tipo": "caminata",
+          "min": {
+            "normal": 12,
+            "pico": 12,
+            "paro": 12
+          }
+        },
+        {
+          "con": "alto-obrajes",
+          "tipo": "caminata",
+          "min": {
+            "normal": 7,
+            "pico": 7,
+            "paro": 7
+          }
+        }
+      ]
+    },
+    {
+      "id": "centro",
+      "nombre": "Centro",
+      "x": 575,
+      "y": 300,
+      "conexiones": [
+        {
+          "con": "obelisco",
+          "tipo": "caminata",
+          "min": {
+            "normal": 12,
+            "pico": 12,
+            "paro": 12
+          }
+        }
+      ]
+    },
+    {
+      "id": "miraflores",
+      "nombre": "Miraflores",
+      "x": 800,
+      "y": 275,
+      "conexiones": [
+        {
+          "con": "triangular",
+          "tipo": "caminata",
+          "min": {
+            "normal": 12,
+            "pico": 12,
+            "paro": 12
+          }
+        }
+      ]
+    },
+    {
+      "id": "calacoto",
+      "nombre": "Calacoto",
+      "x": 930,
+      "y": 635,
+      "conexiones": []
+    },
+    {
+      "id": "ceja-el-alto",
+      "nombre": "Ceja de El Alto",
+      "x": 367,
+      "y": 130,
+      "conexiones": [
+        {
+          "con": "16-de-julio",
+          "tipo": "caminata",
+          "min": {
+            "normal": 12,
+            "pico": 12,
+            "paro": 12
+          }
+        }
+      ]
+    },
+    {
+      "id": "terminal-buses",
+      "nombre": "Terminal de buses",
+      "x": 470,
+      "y": 95,
+      "conexiones": [
+        {
+          "con": "central",
+          "tipo": "caminata",
+          "min": {
+            "normal": 12,
+            "pico": 12,
+            "paro": 12
+          }
+        }
+      ]
+    }
+  ],
+  "lineas": [
+    {
+      "id": "azul",
+      "nombre": "Azul",
+      "color": "#1d4ed8",
+      "estaciones": [
+        "rio-seco",
+        "upea",
+        "plaza-la-paz",
+        "plaza-la-libertad",
+        "16-de-julio"
+      ],
+      "tramos": [
+        5,
+        5,
+        5,
+        5
+      ],
+      "fila": {
+        "normal": 3,
+        "pico": 5,
+        "paro": 28
+      }
+    },
+    {
+      "id": "roja",
+      "nombre": "Roja",
+      "color": "#dc2626",
+      "estaciones": [
+        "16-de-julio",
+        "cementerio",
+        "central"
+      ],
+      "tramos": [
+        5,
+        6
+      ],
+      "fila": {
+        "normal": 3,
+        "pico": 5,
+        "paro": 5
+      }
+    },
+    {
+      "id": "naranja",
+      "nombre": "Naranja",
+      "color": "#f59e0b",
+      "estaciones": [
+        "central",
+        "armentia",
+        "periferica",
+        "villarroel"
+      ],
+      "tramos": [
+        4,
+        4,
+        3
+      ],
+      "fila": {
+        "normal": 3,
+        "pico": 5,
+        "paro": 5
+      }
+    },
+    {
+      "id": "cafe",
+      "nombre": "Café",
+      "color": "#78716c",
+      "estaciones": [
+        "busch",
+        "las-villas"
+      ],
+      "tramos": [
+        4
+      ],
+      "fila": {
+        "normal": 3,
+        "pico": 5,
+        "paro": 5
+      }
+    },
+    {
+      "id": "blanca",
+      "nombre": "Blanca",
+      "color": "#e2e8f0",
+      "estaciones": [
+        "villarroel",
+        "busch",
+        "triangular",
+        "del-poeta"
+      ],
+      "tramos": [
+        4,
+        4,
+        3
+      ],
+      "fila": {
+        "normal": 3,
+        "pico": 5,
+        "paro": 5
+      }
+    },
+    {
+      "id": "celeste",
+      "nombre": "Celeste",
+      "color": "#38bdf8",
+      "estaciones": [
+        "prado",
+        "teatro-al-aire-libre",
+        "del-poeta",
+        "libertador"
+      ],
+      "tramos": [
+        3,
+        3,
+        4
+      ],
+      "fila": {
+        "normal": 3,
+        "pico": 5,
+        "paro": 5
+      }
+    },
+    {
+      "id": "morada",
+      "nombre": "Morada",
+      "color": "#9333ea",
+      "estaciones": [
+        "6-de-marzo",
+        "faro-murillo",
+        "obelisco"
+      ],
+      "tramos": [
+        8,
+        8
+      ],
+      "fila": {
+        "normal": 3,
+        "pico": 18,
+        "paro": 28
+      }
+    },
+    {
+      "id": "plateada",
+      "nombre": "Plateada",
+      "color": "#94a3b8",
+      "estaciones": [
+        "16-de-julio",
+        "faro-murillo",
+        "mirador"
+      ],
+      "tramos": [
+        6,
+        6
+      ],
+      "fila": {
+        "normal": 3,
+        "pico": 5,
+        "paro": 5
+      }
+    },
+    {
+      "id": "amarilla",
+      "nombre": "Amarilla",
+      "color": "#eab308",
+      "estaciones": [
+        "mirador",
+        "buenos-aires",
+        "sopocachi",
+        "libertador"
+      ],
+      "tramos": [
+        6,
+        6,
+        5
+      ],
+      "fila": {
+        "normal": 3,
+        "pico": 18,
+        "paro": 28
+      }
+    },
+    {
+      "id": "verde",
+      "nombre": "Verde",
+      "color": "#16a34a",
+      "estaciones": [
+        "libertador",
+        "alto-obrajes",
+        "obrajes",
+        "irpavi"
+      ],
+      "tramos": [
+        5,
+        5,
+        6
+      ],
+      "fila": {
+        "normal": 3,
+        "pico": 5,
+        "paro": 28
+      }
+    }
+  ],
+  "enlaces": [
+    {
+      "de": "irpavi",
+      "a": "calacoto",
+      "tipo": "minibus",
+      "min": {
+        "normal": 17,
+        "pico": 25,
+        "paro": 50
+      },
+      "nota": "en paro se hace a pie"
+    }, 
+    { "de": "centro", "a": "ucb", "tipo": "minibus",
+  "min": { "normal": 25, "pico": 40, "paro": null }, "nota": "no circula en paro" },
+{ "de": "miraflores", "a": "ucb", "tipo": "minibus",
+  "min": { "normal": 20, "pico": 30, "paro": null }, "nota": "no circula en paro" },
+{ "de": "calacoto", "a": "ucb", "tipo": "minibus",
+  "min": { "normal": 10, "pico": 15, "paro": null }, "nota": "no circula en paro" },
+  { "de": "calacoto", "a": "ucb", "tipo": "minibus",
+  "min": { "normal": 10, "pico": 15, "paro": null }, "nota": "no circula en paro" },
+{ "de": "libertador", "a": "ucb", "tipo": "minibus",
+  "min": { "normal": 5, "pico": 8, "paro": null },
+  "nota": "minibús fuera de la estación (3 min) + 2 min a pie" }
+    
+  ]
+}
