@@ -64,6 +64,12 @@ body {
   transition: background-color 200ms ease, color 200ms ease;
 }
 
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -191,11 +197,46 @@ input {
 
 .page-shell {
   width: min(1120px, calc(100% - 40px));
+  flex: 1;
   margin: 72px auto 0;
   padding: 56px 0 72px;
   position: relative;
   z-index: 1;
-  
+}
+
+.site-footer {
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-surface);
+}
+
+.site-footer-inner {
+  width: min(1120px, calc(100% - 40px));
+  min-height: 76px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.82rem;
+}
+
+.footer-brand {
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+.site-footer-inner p {
+  margin: 0;
+  font-size: inherit;
+}
+
+.site-footer-inner a {
+  color: var(--accent-green);
+  font-weight: 700;
+}
+
+.site-footer-inner a:hover {
+  color: var(--accent-solid);
 }
 
 .view {
@@ -417,6 +458,14 @@ td { color: var(--text-secondary); }
 @media (max-width: 640px) {
   .brand-title { display: none; }
   .page-shell { width: calc(100% - 24px); padding: 24px 0 48px; }
+  .site-footer-inner {
+    width: calc(100% - 24px);
+    min-height: 100px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 8px;
+  }
   .card { border-radius: 14px; }
   .hero { min-height: auto; flex-direction: column; }
   .route-badge { width: 100%; min-width: 0; flex-direction: row; justify-content: center; }

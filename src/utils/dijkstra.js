@@ -62,6 +62,7 @@ export const calcularDijkstra = (
   const anteriores = {}
   const aristaAnterior = {}
   const visitados = new Set()
+  const traza = []
 
   nodes.forEach(node => {
     distancias[node.id] = Infinity
@@ -92,6 +93,7 @@ export const calcularDijkstra = (
     if (nodoActual === null) break
     visitados.add(nodoActual)
 
+    const actualizaciones = []
     const conexiones = edges.filter(
       edge => edge.sourceId === nodoActual
     )
@@ -105,11 +107,23 @@ export const calcularDijkstra = (
       const nuevaDistancia = distancias[nodoActual] + peso
 
       if (nuevaDistancia < distancias[vecino]) {
+        const distanciaAnterior = distancias[vecino]
         distancias[vecino] = nuevaDistancia
         anteriores[vecino] = nodoActual
         aristaAnterior[vecino] = edge.id
+        actualizaciones.push({
+          nodoId: vecino,
+          distanciaAnterior,
+          distanciaNueva: nuevaDistancia
+        })
       }
     }
+
+    traza.push({
+      nodoId: nodoActual,
+      distancia: distanciaMinima,
+      actualizaciones
+    })
   }
 
   // ==========================================
@@ -146,6 +160,7 @@ export const calcularDijkstra = (
     anteriores,
     camino,
     aristasCamino,
+    traza,
     costoTotal: destinoId !== null ? distancias[destinoId] : null,
     distancia: destinoId !== null ? distancias[destinoId] : null,
     alcanzable: destinoId !== null

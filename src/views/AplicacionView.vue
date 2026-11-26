@@ -1,225 +1,13 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
-import redLaPaz from '../data/redLaPaz.json'
-import { construirGrafo } from '../utils/construirGrafo'
-import { calcularDijkstra } from '../utils/dijkstra'
-import MapaRutas from '../components/MapaRutas.vue'
-
-const escenarios = [
-  { id: 'normal', nombre: 'Normal', codigo: 'BASE' },
-  { id: 'pico', nombre: 'Hora pico', codigo: 'PICO' },
-  { id: 'paro', nombre: 'Paro', codigo: 'PARO' }
-]
-
-const origenId = ref('libertador')
-const destinoId = ref('calacoto')
-const escenarioSeleccionado = ref('normal')
-const resultado = ref(null)
-const comparacion = ref([])
-const mensajeError = ref('')
-const caminoRuta = ref([])
-const repetirClave = ref(0)
-
-// Cambiar origen, destino o escenario limpia la animación del camino anterior.
-watch([origenId, destinoId, escenarioSeleccionado], () => {
-  caminoRuta.value = []
-})
-
-const repetirAnimacion = () => {
-  repetirClave.value += 1
+const imagenes = {
+  hero: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Telef%C3%A9rico_La_Paz_-_El_Alto.jpg/1280px-Telef%C3%A9rico_La_Paz_-_El_Alto.jpg',
+  heroAlt: 'Teleférico de La Paz y El Alto en funcionamiento',
 }
-
-const nodosVisibles = computed(() => [
-  ...redLaPaz.estaciones,
-  ...redLaPaz.puntosExtra
-])
-
-const nombreNodo = id => {
-  const nodo = nodosVisibles.value.find(item => item.id === id)
-  return nodo?.nombre || id
-}
-
-const nombreVisibleDesdeCamino = id => {
-  if (!id.includes('|')) return nombreNodo(id)
-  return nombreNodo(id.split('|')[0])
-}
-
-const formatoMinutos = distancia => {
-  if (!Number.isFinite(distancia)) return 'Sin ruta'
-  const minutos = Math.max(0, Math.round(distancia))
-  return `${minutos} min`
-}
-
-const construirPasos = (ruta, aristasPorId) => {
-  if (!ruta.alcanzable) return []
-
-  const pasos = []
-  let tramoActual = null
-
-  const cerrarTramo = () => {
-    if (!tramoActual) return
-    pasos.push({
-      modo: 'teleferico',
-      etiqueta: `LÍNEA ${tramoActual.linea}`,
-      texto: `Viaja ${formatoMinutos(tramoActual.minutos)} en Línea ${tramoActual.linea} hasta ${tramoActual.destino}`
-    })
-    tramoActual = null
-  }
-
-  for (const edgeId of ruta.aristasCamino) {
-    const arista = aristasPorId.get(edgeId)
-    if (!arista) continue
-
-    if (arista.kind === 'subir') {
-      cerrarTramo()
-      pasos.push({
-        modo: 'fila',
-        etiqueta: 'FILA / ABORDAJE',
-        texto: `Espera ${formatoMinutos(arista.weight)} y sube a Línea ${arista.lineaNombre}`
-      })
-    } else if (arista.kind === 'tramo') {
-      if (!tramoActual || tramoActual.lineaId !== arista.lineaId) {
-        cerrarTramo()
-        tramoActual = {
-          lineaId: arista.lineaId,
-          linea: arista.lineaNombre,
-          minutos: 0,
-          destino: nombreVisibleDesdeCamino(arista.targetId)
-        }
-      }
-
-      tramoActual.minutos += arista.weight
-      tramoActual.destino = nombreVisibleDesdeCamino(arista.targetId)
-    } else if (arista.kind === 'bajada') {
-      cerrarTramo()
-    } else if (arista.kind === 'caminata') {
-      cerrarTramo()
-      pasos.push({
-        modo: 'caminata',
-        etiqueta: 'CAMINATA',
-        texto: `Camina ${formatoMinutos(arista.weight)} hasta ${nombreNodo(arista.haciaId)}`
-      })
-    } else if (arista.kind === 'minibus') {
-      cerrarTramo()
-      pasos.push({
-        modo: 'minibus',
-        etiqueta: 'MINIBÚS',
-        texto: `Minibús ${formatoMinutos(arista.weight)} hasta ${nombreNodo(arista.haciaId)}`
-      })
-    }
-  }
-
-  cerrarTramo()
-  return pasos
-}
-
-const rutaVisible = ruta => {
-  return ruta.camino
-    .filter(id => !id.includes('|'))
-    .join('>')
-}
-
-const calcular = () => {
-  mensajeError.value = ''
-
-  if (origenId.value === destinoId.value) {
-    caminoRuta.value = []
-    resultado.value = {
-      distancia: 0,
-      pasos: [{
-        modo: 'caminata',
-        etiqueta: 'ORIGEN = DESTINO',
-        texto: 'Ya te encuentras en el punto de destino.'
-      }]
-    }
-    comparacion.value = escenarios.map(item => ({
-      id: item.id,
-      codigo: item.codigo,
-      nombre: item.nombre,
-      tiempo: '0 min',
-      cambio: 'Ruta igual'
-    }))
-    return
-  }
-
-  try {
-    const actuales = {}
-
-    for (const escenario of escenarios) {
-      const { nodes, edges } = construirGrafo(escenario.id)
-      const ruta = calcularDijkstra(
-        nodes,
-        edges,
-        origenId.value,
-        destinoId.value
-      )
-
-      actuales[escenario.id] = ruta
-    }
-
-    const rutaPrincipal = actuales[escenarioSeleccionado.value]
-
-    if (!rutaPrincipal.alcanzable) {
-      caminoRuta.value = []
-      resultado.value = null
-      mensajeError.value = 'No existe una ruta disponible entre el origen y el destino.'
-    } else {
-      caminoRuta.value = [...rutaPrincipal.camino]
-      const grafoPrincipal = construirGrafo(escenarioSeleccionado.value)
-      const aristasPorId = new Map(
-        grafoPrincipal.edges.map(arista => [arista.id, arista])
-      )
-
-      resultado.value = {
-        distancia: rutaPrincipal.distancia,
-        pasos: construirPasos(rutaPrincipal, aristasPorId)
-      }
-    }
-
-    const rutasDeReferencia = Object.values(actuales)
-      .filter(ruta => ruta.alcanzable)
-
-    comparacion.value = escenarios.map(escenario => {
-      const ruta = actuales[escenario.id]
-
-      if (!ruta.alcanzable) {
-        return {
-          id: escenario.id,
-          codigo: escenario.codigo,
-          nombre: escenario.nombre,
-          tiempo: 'Sin ruta',
-          cambio: 'Sin ruta disponible'
-        }
-      }
-
-      const rutaActual = rutaVisible(ruta)
-      const rutaNormal = rutasDeReferencia[0]
-        ? rutaVisible(rutasDeReferencia[0])
-        : rutaActual
-
-      return {
-        id: escenario.id,
-        codigo: escenario.codigo,
-        nombre: escenario.nombre,
-        tiempo: formatoMinutos(ruta.distancia),
-        cambio: rutaNormal === rutaActual
-          ? 'Misma ruta de referencia'
-          : 'La ruta cambió'
-      }
-    })
-  } catch (error) {
-    caminoRuta.value = []
-    resultado.value = null
-    comparacion.value = []
-    mensajeError.value = error.message
-  }
-}
-
-calcular()
 </script>
 
 <template>
   <section class="view application-view">
+
     <header class="section-heading">
       <div class="kicker-row">
         <span class="kicker-line"></span>
@@ -227,189 +15,258 @@ calcular()
       </div>
       <h1>Aplicación</h1>
       <p class="lead">
-        Elige origen, destino y escenario para calcular el camino de menor tiempo con
-        Dijkstra sobre <code>redLaPaz.json</code>.
+        El modelo de Dijkstra implementado sobre <code>redLaPaz.json</code> permite
+        calcular rutas de menor tiempo combinando teleférico, minibús y caminata.
+        Aquí se describe cómo funciona el simulador antes de abrirlo.
       </p>
     </header>
 
-    <!-- Panel de control -->
-    <article class="card route-controls">
-      <div class="controls-header">
-        <span class="mono-tag">PARÁMETROS DE CONSULTA</span>
-        <span class="active-route-pill">
-          {{ nombreNodo(origenId) }} → {{ nombreNodo(destinoId) }}
-        </span>
+    <figure class="hero-media">
+      <img
+        :src="imagenes.hero"
+        :alt="imagenes.heroAlt"
+        loading="lazy"
+        referrerpolicy="no-referrer"
+      />
+      <figcaption>
+        <span class="caption-label">IMAGEN</span>
+        Red de teleférico urbano La Paz – El Alto, la más extensa del mundo.
+        <span class="caption-credit">Wikimedia Commons · CC BY-SA</span>
+      </figcaption>
+    </figure>
+
+    <section class="what-section">
+      <div class="block-head">
+        <h2>¿Qué hace el simulador?</h2>
+        <span class="mono-pill">FLUJO</span>
       </div>
 
-      <div class="select-grid">
-        <label>
-          <span>Origen</span>
-          <select v-model="origenId">
-            <optgroup label="Estaciones de teleférico">
-              <option
-                v-for="estacion in redLaPaz.estaciones"
-                :key="estacion.id"
-                :value="estacion.id"
-              >
-                {{ estacion.nombre }}
-              </option>
-            </optgroup>
-            <optgroup label="Puntos de la ciudad">
-              <option
-                v-for="punto in redLaPaz.puntosExtra"
-                :key="punto.id"
-                :value="punto.id"
-              >
-                {{ punto.nombre }}
-              </option>
-            </optgroup>
-          </select>
-        </label>
+      <div class="flow-grid">
+        <article class="flow-col flow-col--first">
+          <span class="flow-step">01</span>
+          <h3>Elegir origen y destino</h3>
+          <p>El usuario selecciona dos nodos del grafo: estaciones de teleférico o puntos clave de la ciudad.</p>
+        </article>
+        <article class="flow-col">
+          <span class="flow-step">02</span>
+          <h3>Seleccionar escenario</h3>
+          <p>Normal, Hora pico o Paro. Cada escenario aplica pesos distintos a las aristas del grafo.</p>
+        </article>
+        <article class="flow-col">
+          <span class="flow-step">03</span>
+          <h3>Calcular con Dijkstra</h3>
+          <p>El algoritmo recorre el grafo y devuelve el camino de menor tiempo acumulado en minutos.</p>
+        </article>
+        <article class="flow-col">
+          <span class="flow-step">04</span>
+          <h3>Visualizar el resultado</h3>
+          <p>El recorrido se anima sobre el mapa y se muestra el detalle paso a paso del viaje.</p>
+        </article>
+      </div>
+    </section>
 
-        <label>
-          <span>Destino</span>
-          <select v-model="destinoId">
-            <optgroup label="Estaciones de teleférico">
-              <option
-                v-for="estacion in redLaPaz.estaciones"
-                :key="estacion.id"
-                :value="estacion.id"
-              >
-                {{ estacion.nombre }}
-              </option>
-            </optgroup>
-            <optgroup label="Puntos de la ciudad">
-              <option
-                v-for="punto in redLaPaz.puntosExtra"
-                :key="punto.id"
-                :value="punto.id"
-              >
-                {{ punto.nombre }}
-              </option>
-            </optgroup>
-          </select>
-        </label>
+    <section class="diagram-section">
+      <div class="block-head">
+        <h2>Flujo de cálculo</h2>
+        <span class="mono-pill">GRAFO → DIJKSTRA → RUTA</span>
       </div>
 
-      <div class="controls-bottom">
-        <div class="scenario-row">
-          <span class="control-label">Escenario</span>
-          <div class="scenario-buttons" role="group" aria-label="Seleccionar escenario">
-            <button
-              v-for="escenario in escenarios"
-              :key="escenario.id"
-              type="button"
-              :class="{ active: escenarioSeleccionado === escenario.id }"
-              @click="escenarioSeleccionado = escenario.id"
-            >
-              <span class="btn-code">{{ escenario.codigo }}</span>
-              <span>{{ escenario.nombre }}</span>
-            </button>
-          </div>
-        </div>
+      <div class="diagram-svg" aria-hidden="true">
+        <svg viewBox="0 0 760 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="20" y="55" width="140" height="60" rx="10" fill="#9b72e8" fill-opacity="0.12" stroke="#9b72e8" stroke-opacity="0.5" />
+          <text x="90" y="80" fill="#c4b5fd" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" text-anchor="middle">ORIGEN + DESTINO</text>
+          <text x="90" y="96" fill="#b5b0c4" font-family="JetBrains Mono, monospace" font-size="8.5" text-anchor="middle">nodos del grafo</text>
 
-        <button class="calculate-button" type="button" @click="calcular">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-            <path d="M5 12h14M13 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          <span>Calcular ruta</span>
-        </button>
+          <line x1="170" y1="85" x2="220" y2="85" stroke="#9b72e8" stroke-width="2" stroke-linecap="round" />
+
+          <rect x="230" y="55" width="140" height="60" rx="10" fill="#ec4899" fill-opacity="0.12" stroke="#ec4899" stroke-opacity="0.5" />
+          <text x="300" y="80" fill="#f472b6" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" text-anchor="middle">ESCENARIO</text>
+          <text x="300" y="96" fill="#b5b0c4" font-family="JetBrains Mono, monospace" font-size="8.5" text-anchor="middle">normal · pico · paro</text>
+
+          <line x1="380" y1="85" x2="430" y2="85" stroke="#ec4899" stroke-width="2" stroke-linecap="round" />
+
+          <rect x="440" y="55" width="140" height="60" rx="10" fill="#22c55e" fill-opacity="0.12" stroke="#22c55e" stroke-opacity="0.5" />
+          <text x="510" y="80" fill="#4ade80" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" text-anchor="middle">DIJKSTRA</text>
+          <text x="510" y="96" fill="#b5b0c4" font-family="JetBrains Mono, monospace" font-size="8.5" text-anchor="middle">O((V+E) log V)</text>
+
+          <line x1="590" y1="85" x2="640" y2="85" stroke="#22c55e" stroke-width="2" stroke-linecap="round" />
+
+          <rect x="650" y="55" width="90" height="60" rx="10" fill="#38bdf8" fill-opacity="0.12" stroke="#38bdf8" stroke-opacity="0.5" />
+          <text x="695" y="80" fill="#7dd3fc" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" text-anchor="middle">RUTA</text>
+          <text x="695" y="96" fill="#b5b0c4" font-family="JetBrains Mono, monospace" font-size="8.5" text-anchor="middle">+ tiempo</text>
+
+          <text x="380" y="140" fill="#b5b0c4" font-family="JetBrains Mono, monospace" font-size="9" text-anchor="middle" opacity="0.7">
+            Cada arista se pondera en minutos reales según el escenario activo
+          </text>
+        </svg>
       </div>
-    </article>
+    </section>
 
-    <!-- Mapa + barra de animación -->
-    <article class="card map-stage">
-      <div class="map-toolbar">
-        <div>
-          <span class="mono-tag">RED INTERACTIVA · LA PAZ</span>
-          <h2>Visualización del recorrido</h2>
-        </div>
-
-        <button
-          v-if="caminoRuta.length"
-          class="repeat-button"
-          type="button"
-          @click="repetirAnimacion"
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-            <path d="M3 12a9 9 0 1 0 3-6.7L3 8" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M3 3v5h5" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          <span>Repetir animación</span>
-        </button>
+    <!-- MAPA ESQUEMÁTICO DE LA RED (en vez de galería genérica) -->
+    <section class="network-section">
+      <div class="block-head">
+        <h2>Red modelada</h2>
+        <span class="mono-pill">10 LÍNEAS · 26 ESTACIONES</span>
       </div>
 
-      <div class="map-frame">
-        <MapaRutas :ruta="caminoRuta" :repeat-key="repetirClave" />
+      <div class="network-canvas" aria-hidden="true">
+        <svg viewBox="0 0 760 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="lineRoja" x1="0" y1="0" x2="760" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ef4444" />
+              <stop offset="100%" stop-color="#f97316" />
+            </linearGradient>
+            <linearGradient id="lineAmarilla" x1="0" y1="0" x2="760" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#eab308" />
+              <stop offset="100%" stop-color="#facc15" />
+            </linearGradient>
+            <linearGradient id="lineVerde" x1="0" y1="0" x2="760" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#22c55e" />
+              <stop offset="100%" stop-color="#4ade80" />
+            </linearGradient>
+            <linearGradient id="lineAzul" x1="0" y1="0" x2="760" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#3b82f6" />
+              <stop offset="100%" stop-color="#38bdf8" />
+            </linearGradient>
+            <linearGradient id="lineMorada" x1="0" y1="0" x2="760" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#a855f7" />
+              <stop offset="100%" stop-color="#c084fc" />
+            </linearGradient>
+          </defs>
+
+          <!-- Línea Roja: Ceja → Centro → Zona Sur -->
+          <path d="M60 90 L200 70 L340 130 L480 150 L640 180" stroke="url(#lineRoja)" stroke-width="4" stroke-linecap="round" />
+
+          <!-- Línea Amarilla: cruce horizontal -->
+          <path d="M100 200 L260 180 L420 200 L620 220" stroke="url(#lineAmarilla)" stroke-width="4" stroke-linecap="round" />
+
+          <!-- Línea Verde: hacia UCB / Obrajes -->
+          <path d="M340 130 L420 230 L560 260" stroke="url(#lineVerde)" stroke-width="4" stroke-linecap="round" />
+
+          <!-- Línea Azul: conexión al Alto -->
+          <path d="M200 70 L160 40 L100 60" stroke="url(#lineAzul)" stroke-width="4" stroke-linecap="round" />
+
+          <!-- Línea Morada: ramal centro -->
+          <path d="M340 130 L360 250 L500 270" stroke="url(#lineMorada)" stroke-width="4" stroke-linecap="round" stroke-dasharray="6 6" opacity="0.85" />
+
+          <!-- Estaciones (círculos) -->
+          <!-- Roja -->
+          <circle cx="60" cy="90" r="9" fill="#0f0a1a" stroke="#ef4444" stroke-width="3" />
+          <text x="60" y="70" fill="#ef4444" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">CEJA</text>
+
+          <circle cx="200" cy="70" r="9" fill="#0f0a1a" stroke="#ef4444" stroke-width="3" />
+          <text x="200" y="50" fill="#ef4444" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">16 DE JULIO</text>
+
+          <circle cx="340" cy="130" r="11" fill="#0f0a1a" stroke="#a855f7" stroke-width="3" />
+          <text x="340" y="112" fill="#c084fc" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">CENTRAL</text>
+
+          <circle cx="480" cy="150" r="9" fill="#0f0a1a" stroke="#ef4444" stroke-width="3" />
+          <text x="480" y="132" fill="#ef4444" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">MIRAFLORES</text>
+
+          <circle cx="640" cy="180" r="9" fill="#0f0a1a" stroke="#f97316" stroke-width="3" />
+          <text x="640" y="162" fill="#f97316" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">CALACOTO</text>
+
+          <!-- Amarilla -->
+          <circle cx="100" cy="200" r="9" fill="#0f0a1a" stroke="#eab308" stroke-width="3" />
+          <text x="100" y="222" fill="#eab308" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">LIBERTADOR</text>
+
+          <circle cx="260" cy="180" r="9" fill="#0f0a1a" stroke="#eab308" stroke-width="3" />
+          <text x="260" y="200" fill="#eab308" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">OBELISCO</text>
+
+          <circle cx="420" cy="200" r="9" fill="#0f0a1a" stroke="#eab308" stroke-width="3" />
+          <text x="420" y="220" fill="#eab308" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">SAN JORGE</text>
+
+          <circle cx="620" cy="220" r="9" fill="#0f0a1a" stroke="#eab308" stroke-width="3" />
+          <text x="620" y="240" fill="#eab308" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">IRPAVI</text>
+
+          <!-- Verde -->
+          <circle cx="560" cy="260" r="9" fill="#0f0a1a" stroke="#22c55e" stroke-width="3" />
+          <text x="560" y="280" fill="#4ade80" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">UCB OBRAJES</text>
+
+          <!-- Azul -->
+          <circle cx="100" cy="60" r="9" fill="#0f0a1a" stroke="#3b82f6" stroke-width="3" />
+          <text x="100" y="42" fill="#3b82f6" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">EL ALTO</text>
+
+          <!-- Morada -->
+          <circle cx="360" cy="250" r="9" fill="#0f0a1a" stroke="#a855f7" stroke-width="3" />
+          <text x="360" y="270" fill="#c084fc" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">PERIFÉRICA</text>
+
+          <circle cx="500" cy="270" r="9" fill="#0f0a1a" stroke="#a855f7" stroke-width="3" />
+          <text x="500" y="290" fill="#c084fc" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">ALTO OBRAJES</text>
+
+          <!-- Leyenda -->
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#b5b0c4">
+            <line x1="20" y1="285" x2="40" y2="285" stroke="url(#lineRoja)" stroke-width="3" stroke-linecap="round" />
+            <text x="46" y="288">Roja</text>
+            <line x1="90" y1="285" x2="110" y2="285" stroke="url(#lineAmarilla)" stroke-width="3" stroke-linecap="round" />
+            <text x="116" y="288">Amarilla</text>
+            <line x1="170" y1="285" x2="190" y2="285" stroke="url(#lineVerde)" stroke-width="3" stroke-linecap="round" />
+            <text x="196" y="288">Verde</text>
+            <line x1="240" y1="285" x2="260" y2="285" stroke="url(#lineAzul)" stroke-width="3" stroke-linecap="round" />
+            <text x="266" y="288">Azul</text>
+            <line x1="300" y1="285" x2="320" y2="285" stroke="url(#lineMorada)" stroke-width="3" stroke-linecap="round" />
+            <text x="326" y="288">Morada</text>
+          </g>
+        </svg>
       </div>
-    </article>
 
-    <!-- Error o resultado paso a paso -->
-    <article v-if="mensajeError" class="card no-route">
-      <span class="error-code">SIN CONEXIÓN</span>
-      <h2>Ruta no disponible</h2>
-      <p>{{ mensajeError }}</p>
-    </article>
+      <p class="network-note">
+        Las 10 líneas de Mi Teleférico conectan El Alto, la Ceja, el Centro y la Zona Sur
+        con 26 estaciones. El simulador modela una versión simplificada de esta red
+        ponderando cada tramo en minutos.
+      </p>
+    </section>
 
-    <article v-else-if="resultado" class="card route-result">
-      <div class="result-header">
-        <div>
-          <span class="mono-tag">TIEMPO MÍNIMO ESTIMADO</span>
-          <h2>Detalle de la ruta óptima</h2>
-        </div>
-        <strong class="total-time">{{ formatoMinutos(resultado.distancia) }}</strong>
+    <section class="preview-section">
+      <div class="block-head">
+        <h2>Qué encontrarás al abrirlo</h2>
+        <span class="mono-pill">CONTENIDO</span>
       </div>
+      <ul class="preview-list">
+        <li><strong>Mapa interactivo</strong> con la red de teleférico y los puntos clave de La Paz.</li>
+        <li><strong>Selectores de origen y destino</strong> con todas las estaciones y puntos extra.</li>
+        <li><strong>Botones de escenario</strong> para alternar entre Normal, Hora pico y Paro.</li>
+        <li><strong>Animación del recorrido</strong> sobre el mapa, repetible con un botón.</li>
+        <li><strong>Detalle paso a paso</strong> del viaje: fila, líneas, caminatas y minibuses.</li>
+        <li><strong>Traza de Dijkstra</strong> expandible para ver cómo se calculó la ruta.</li>
+        <li><strong>Comparación entre escenarios</strong> sobre el mismo par origen–destino.</li>
+      </ul>
+    </section>
 
-      <ol class="route-steps">
-        <li
-          v-for="(paso, index) in resultado.pasos"
-          :key="`${paso.texto}-${index}`"
-          :class="`step-${paso.modo}`"
-        >
-          <span class="step-index">{{ String(index + 1).padStart(2, '0') }}</span>
-          <div class="step-content">
-            <span class="step-tag">{{ paso.etiqueta }}</span>
-            <p>{{ paso.texto }}</p>
-          </div>
-        </li>
-      </ol>
-    </article>
+    <div class="cta-section">
+      <RouterLink class="cta-button" to="/aplicacion/simulador">
+        <span>Abrir simulador interactivo</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+          <path d="M5 12h14M13 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </RouterLink>
+    </div>
 
-    <!-- Comparación entre escenarios -->
-    <article v-if="comparacion.length" class="card comparison-card">
-      <div class="comparison-head">
-        <h2>Comparación entre escenarios</h2>
-        <span class="mono-pill">MISMO GRAFO</span>
-      </div>
-
-      <div class="comparison-grid">
-        <div
-          v-for="item in comparacion"
-          :key="item.id"
-          :class="['comparison-item', { selected: item.id === escenarioSeleccionado }]"
-        >
-          <div class="item-top">
-            <span>{{ item.nombre }}</span>
-            <small class="item-code">{{ item.codigo }}</small>
-          </div>
-          <strong>{{ item.tiempo }}</strong>
-          <small class="item-status">{{ item.cambio }}</small>
-        </div>
-      </div>
-    </article>
   </section>
 </template>
 
 <style scoped>
+/* ============================================================
+   RESET DEL CONTENEDOR DE LA VISTA
+   ============================================================ */
 .application-view {
-  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(36px, 5vw, 60px);
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
+/* ============ HEADING ============ */
 .kicker-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .kicker-line {
@@ -420,424 +277,302 @@ calcular()
 
 .kicker-text {
   font-family: "JetBrains Mono", monospace;
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   color: var(--accent-solid);
+}
+
+.section-heading h1 {
+  font-size: clamp(2rem, 4.2vw, 3.1rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin: 0 0 16px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.section-heading .lead {
+  font-size: clamp(0.98rem, 1.1vw, 1.06rem);
+  line-height: 1.65;
+  max-width: 64ch;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 .section-heading code {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.85em;
   padding: 2px 6px;
-  border-radius: 5px;
+  border-radius: 4px;
   background: var(--accent-soft-bg);
   color: var(--accent-green);
 }
 
-.mono-tag {
-  display: inline-block;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--accent-solid);
-}
-
-/* Panel de controles */
-.route-controls {
+/* ============ HERO MEDIA ============ */
+.hero-media {
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 22px;
-}
-
-.controls-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
   gap: 10px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--border-color);
 }
 
-.active-route-pill {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 5px 10px;
-  border-radius: 7px;
-  background: var(--bg-surface-2);
-  border: 1px solid var(--border-color);
-  color: var(--accent-green);
-}
-
-.select-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
-
-.select-grid label,
-.scenario-row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.select-grid label > span,
-.control-label {
-  font-family: "JetBrains Mono", monospace;
-  color: var(--text-primary);
-  font-size: 0.76rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.select-grid select {
+.hero-media img {
   width: 100%;
-  height: 46px;
-  padding: 0 12px;
-  border: 1px solid var(--border-color);
+  aspect-ratio: 21 / 9;
+  object-fit: cover;
   border-radius: 10px;
-  outline: none;
-  background: var(--bg-surface-2);
-  color: var(--text-primary);
-  transition: border-color 160ms ease, box-shadow 160ms ease;
+  display: block;
 }
 
-.select-grid select:focus {
-  border-color: var(--accent-solid);
-  box-shadow: 0 0 0 3px var(--accent-soft-bg);
-}
-
-.controls-bottom {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.scenario-buttons {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.scenario-buttons button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 42px;
-  padding: 0 15px;
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  background: var(--bg-surface-2);
+.hero-media figcaption {
+  font-size: 0.82rem;
+  line-height: 1.55;
   color: var(--text-secondary);
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.88rem;
-  transition: 160ms ease;
 }
 
-.scenario-buttons button:hover {
-  color: var(--text-primary);
-  border-color: var(--accent-solid);
-}
-
-.scenario-buttons button.active {
-  border-color: var(--accent-solid);
-  background: var(--accent-soft-bg);
-  color: var(--text-primary);
-}
-
-.btn-code {
+.caption-label {
+  display: inline-block;
+  margin-right: 8px;
   font-family: "JetBrains Mono", monospace;
   font-size: 0.68rem;
-  padding: 2px 6px;
-  border-radius: 5px;
-  background: var(--bg-body);
+  font-weight: 700;
+  letter-spacing: 0.1em;
   color: var(--accent-solid);
 }
 
-.scenario-buttons button.active .btn-code {
-  color: var(--accent-green);
+.caption-credit {
+  opacity: 0.55;
+  margin-left: 4px;
 }
 
-.calculate-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  min-height: 44px;
-  padding: 0 22px;
-  border: 0;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--accent-solid), var(--accent-pink));
-  color: #fff;
-  cursor: pointer;
-  font-weight: 800;
-  font-size: 0.9rem;
-  transition: transform 160ms ease, filter 160ms ease;
-}
-
-.calculate-button:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.06);
-}
-
-/* Mapa */
-.map-stage {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.map-toolbar {
+/* ============ BLOCK HEAD ============ */
+.block-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
   gap: 12px;
-}
-
-.map-toolbar h2 {
-  margin: 4px 0 0;
-}
-
-.map-frame {
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-  background: var(--bg-body);
-}
-
-.repeat-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 36px;
-  padding: 0 13px;
-  border: 1px solid var(--border-color);
-  border-radius: 9px;
-  background: var(--bg-surface-2);
-  color: var(--text-primary);
-  cursor: pointer;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.76rem;
-  font-weight: 700;
-  transition: 160ms ease;
-}
-
-.repeat-button:hover {
-  border-color: var(--accent-green);
-  color: var(--accent-green);
-}
-
-/* Error */
-.no-route {
-  border-color: rgba(236, 72, 153, 0.45);
-  background: rgba(236, 72, 153, 0.08);
-}
-
-.error-code {
-  display: inline-block;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--accent-pink);
-  margin-bottom: 6px;
-}
-
-/* Resultado */
-.route-result {
-  border-left: 4px solid var(--accent-green);
-}
-
-.result-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--border-color);
 }
 
-.result-header h2 {
-  margin: 4px 0 0;
-}
-
-.total-time {
-  font-family: "JetBrains Mono", monospace;
-  color: var(--accent-green);
-  font-size: clamp(1.5rem, 4vw, 2.2rem);
-  font-weight: 700;
-}
-
-.route-steps {
-  list-style: none;
+.block-head h2 {
   margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 10px;
-}
-
-.route-steps li {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 13px 15px;
-  border-radius: 12px;
-  background: var(--bg-body);
-  border: 1px solid var(--border-color);
-}
-
-.step-index {
-  flex: 0 0 auto;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.78rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  padding: 5px 8px;
-  border-radius: 7px;
-  background: var(--accent-soft-bg);
-  color: var(--accent-solid);
-}
-
-.step-content {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.step-tag {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--text-secondary);
-}
-
-.step-teleferico .step-tag {
-  color: var(--accent-solid);
-}
-
-.step-fila .step-tag {
-  color: var(--accent-pink);
-}
-
-.step-caminata .step-tag {
-  color: var(--accent-green);
-}
-
-.step-minibus .step-tag {
-  color: var(--accent-blue);
-}
-
-.route-steps p {
-  margin: 0;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
-  font-size: 0.95rem;
-}
-
-/* Comparación */
-.comparison-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.comparison-head h2 {
-  margin: 0;
 }
 
 .mono-pill {
   font-family: "JetBrains Mono", monospace;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
   padding: 4px 9px;
   border-radius: 6px;
   background: var(--bg-surface-2);
   color: var(--accent-green);
   border: 1px solid var(--border-color);
+  white-space: nowrap;
 }
 
-.comparison-grid {
+/* ============ QUÉ HACE (4 columnas) ============ */
+.what-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: clamp(24px, 3vw, 36px);
+  border-top: 1px solid var(--border-color);
+}
+
+.flow-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
 }
 
-.comparison-item {
+.flow-col {
+  padding: 0 24px;
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 118px;
-  padding: 16px;
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  background: var(--bg-body);
-  transition: border-color 160ms ease, background-color 160ms ease;
 }
 
-.comparison-item.selected {
-  border-color: var(--accent-green);
-  background: var(--accent-soft-bg);
+.flow-col--first {
+  padding-left: 0;
 }
 
-.item-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+.flow-col:last-child {
+  border-right: none;
+  padding-right: 0;
 }
 
-.item-top span {
+.flow-step {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
   font-weight: 700;
-  font-size: 0.9rem;
+  color: var(--accent-solid);
+}
+
+.flow-col h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
   color: var(--text-primary);
 }
 
-.item-code {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.68rem;
+.flow-col p {
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ============ DIAGRAMA SVG ============ */
+.diagram-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: clamp(24px, 3vw, 36px);
+  border-top: 1px solid var(--border-color);
+}
+
+.diagram-svg {
+  width: 100%;
+}
+
+.diagram-svg svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ============ RED MODELADA (SVG esquemático) ============ */
+.network-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: clamp(24px, 3vw, 36px);
+  border-top: 1px solid var(--border-color);
+}
+
+.network-canvas {
+  width: 100%;
+  padding: clamp(8px, 2vw, 20px) 0;
+}
+
+.network-canvas svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.network-note {
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  max-width: 72ch;
+  margin: 0;
+}
+
+/* ============ PREVIEW ============ */
+.preview-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: clamp(24px, 3vw, 36px);
+  border-top: 1px solid var(--border-color);
+}
+
+.preview-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 32px;
+}
+
+.preview-list li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  line-height: 1.6;
   color: var(--text-secondary);
 }
 
-.comparison-item strong {
-  font-family: "JetBrains Mono", monospace;
-  color: var(--accent-green);
-  font-size: 1.3rem;
+.preview-list strong {
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
-.item-status {
-  font-family: "JetBrains Mono", monospace;
-  color: var(--text-secondary);
-  font-size: 0.76rem;
-  line-height: 1.35;
+/* ============ CTA ============ */
+.cta-section {
+  display: flex;
+  justify-content: center;
+  padding: clamp(16px, 3vw, 28px) 0;
 }
 
-@media (max-width: 720px) {
-  .select-grid,
-  .comparison-grid {
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent-solid);
+  color: #ffffff !important;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  text-decoration: none !important;
+  transition: transform 160ms ease, filter 160ms ease;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.cta-button svg {
+  transition: transform 200ms ease;
+}
+
+.cta-button:hover svg {
+  transform: translateX(3px);
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 900px) {
+  .flow-grid {
     grid-template-columns: 1fr;
   }
 
-  .controls-bottom {
-    align-items: stretch;
+  .flow-col,
+  .flow-col--first {
+    padding: 18px 0;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
   }
 
-  .calculate-button {
-    width: 100%;
-    justify-content: center;
+  .flow-col:last-child {
+    border-bottom: none;
   }
 
-  .scenario-buttons button {
-    flex: 1;
-    justify-content: center;
+  .preview-list {
+    grid-template-columns: 1fr;
+  }
+
+  .network-canvas {
+    overflow-x: auto;
+  }
+
+  .network-canvas svg {
+    min-width: 620px;
   }
 }
 </style>

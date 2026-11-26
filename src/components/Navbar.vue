@@ -41,62 +41,52 @@ watch(isDark, (val) => {
         aria-label="LaderaFlow - Ir a la introducción"
         @click="menuOpen = false"
       >
-        <div class="brand-icon" aria-hidden="true">
-          <svg viewBox="0 0 28 28" fill="none">
-            <path
-              d="M4 21L14 14L24 7"
-              stroke="url(#laderaGrad)"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <circle cx="4" cy="21" r="3" fill="#ec4899" />
-            <circle cx="14" cy="14" r="3" fill="#38bdf8" />
-            <circle cx="24" cy="7" r="3" fill="#22c55e" />
-            <defs>
-              <linearGradient id="laderaGrad" x1="4" y1="21" x2="24" y2="7" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#ec4899" />
-                <stop offset="0.5" stop-color="#a855f7" />
-                <stop offset="1" stop-color="#22c55e" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-
-        <div class="brand-text">
-          <span class="brand-name">
-            Ladera<span class="accent">Flow</span>
-          </span>
-          <span class="brand-sub">Dijkstra · La Paz</span>
-        </div>
+        <svg class="brand-mark" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path
+            d="M4 21L14 14L24 7"
+            stroke="url(#laderaGrad)"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <circle cx="4" cy="21" r="2.6" fill="#ec4899" />
+          <circle cx="14" cy="14" r="2.6" fill="#a855f7" />
+          <circle cx="24" cy="7" r="2.6" fill="#22c55e" />
+          <defs>
+            <linearGradient id="laderaGrad" x1="4" y1="21" x2="24" y2="7" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#ec4899" />
+              <stop offset="0.5" stop-color="#a855f7" />
+              <stop offset="1" stop-color="#22c55e" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="brand-name">Ladera<span class="brand-flow">Flow</span></span>
       </RouterLink>
 
-      <div class="nav-right">
-        <nav :class="['nav-links', { open: menuOpen }]" aria-label="Navegación principal">
-          <RouterLink
-            v-for="link in links"
-            :key="link.to"
-            :to="link.to"
-            class="nav-item"
-            @click="menuOpen = false"
-          >
-            {{ link.label }}
-          </RouterLink>
-        </nav>
+      <nav :class="['nav-links', { open: menuOpen }]" aria-label="Navegación principal">
+        <RouterLink
+          v-for="link in links"
+          :key="link.to"
+          :to="link.to"
+          class="nav-item"
+          @click="menuOpen = false"
+        >
+          {{ link.label }}
+        </RouterLink>
+      </nav>
 
+      <div class="nav-tools">
         <button
-          class="theme-btn"
+          class="tool-btn"
           type="button"
           :aria-label="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
-          :title="isDark ? 'Modo claro' : 'Modo oscuro'"
           @click="isDark = !isDark"
         >
-          <!-- Sol (en modo oscuro) -->
           <svg
             v-if="isDark"
             viewBox="0 0 24 24"
-            width="18"
-            height="18"
+            width="17"
+            height="17"
             fill="none"
             stroke="currentColor"
             stroke-width="2"
@@ -107,12 +97,11 @@ watch(isDark, (val) => {
             <circle cx="12" cy="12" r="4" />
             <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
           </svg>
-          <!-- Luna (en modo claro) -->
           <svg
             v-else
             viewBox="0 0 24 24"
-            width="18"
-            height="18"
+            width="17"
+            height="17"
             fill="none"
             stroke="currentColor"
             stroke-width="2"
@@ -133,7 +122,6 @@ watch(isDark, (val) => {
         >
           <span></span>
           <span></span>
-          <span></span>
         </button>
       </div>
     </div>
@@ -142,31 +130,29 @@ watch(isDark, (val) => {
 
 <style scoped>
 .navbar.theme-dark {
-  --nav-bg: rgba(18, 12, 31, 0.9);
-  --nav-border: rgba(192, 132, 252, 0.2);
-  --text-main: #f5f3ff;
-  --text-muted: #c4b5fd;
-  --hover-bg: rgba(236, 72, 153, 0.14);
-  --active-bg: rgba(168, 85, 247, 0.22);
-  --active-text: #f472b6;
-  --accent-grad: linear-gradient(90deg, #f472b6, #a855f7, #4ade80);
-  --icon-bg: rgba(168, 85, 247, 0.16);
-  --icon-border: rgba(244, 114, 182, 0.35);
-  --shadow: 0 8px 24px rgba(9, 4, 20, 0.55);
+  --nav-bg: rgba(14, 10, 24, 0.72);
+  --nav-border: rgba(255, 255, 255, 0.07);
+  --text-main: #ece9f5;
+  --text-muted: #8b7fa6;
+  --hover-text: #ffffff;
+  --link-active: #f472b6;
+  --brand-flow: #a855f7;
+  --tool-border: rgba(255, 255, 255, 0.09);
+  --tool-bg: rgba(255, 255, 255, 0.04);
+  --tool-hover: rgba(255, 255, 255, 0.08);
 }
 
 .navbar.theme-light {
-  --nav-bg: rgba(252, 250, 255, 0.92);
-  --nav-border: rgba(147, 51, 234, 0.16);
+  --nav-bg: rgba(250, 248, 255, 0.78);
+  --nav-border: rgba(30, 16, 53, 0.08);
   --text-main: #1e1035;
-  --text-muted: #6b4c9a;
-  --hover-bg: rgba(236, 72, 153, 0.1);
-  --active-bg: rgba(168, 85, 247, 0.14);
-  --active-text: #be185d;
-  --accent-grad: linear-gradient(90deg, #db2777, #7e22ce, #16a34a);
-  --icon-bg: rgba(236, 72, 153, 0.1);
-  --icon-border: rgba(126, 34, 206, 0.25);
-  --shadow: 0 6px 20px rgba(88, 28, 135, 0.08);
+  --text-muted: #7a6a94;
+  --hover-text: #1e1035;
+  --link-active: #be185d;
+  --brand-flow: #7e22ce;
+  --tool-border: rgba(30, 16, 53, 0.1);
+  --tool-bg: rgba(30, 16, 53, 0.03);
+  --tool-hover: rgba(30, 16, 53, 0.06);
 }
 
 .navbar {
@@ -175,178 +161,168 @@ watch(isDark, (val) => {
   top: 0;
   z-index: 100;
   background: var(--nav-bg);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
   border-bottom: 1px solid var(--nav-border);
-  box-shadow: var(--shadow);
-  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .navbar-inner {
-  width: 100%;
-  padding: 0.7rem 1.75rem;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0.65rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1.5rem;
   box-sizing: border-box;
 }
 
+/* ===== BRAND ===== */
 .brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.55rem;
   text-decoration: none;
   color: var(--text-main);
+  flex-shrink: 0;
 }
 
-.brand-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
-  display: grid;
-  place-items: center;
-  padding: 5px;
-  background: var(--icon-bg);
-  border: 1px solid var(--icon-border);
-}
-
-.brand-icon svg {
-  width: 100%;
-  height: 100%;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
+.brand-mark {
+  width: 26px;
+  height: 26px;
 }
 
 .brand-name {
-  font-size: 1.15rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
   color: var(--text-main);
 }
 
-.brand-name .accent {
-  background: var(--accent-grad);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.brand-flow {
+  color: var(--brand-flow);
+  font-weight: 800;
 }
 
-.brand-sub {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
+/* ===== NAV LINKS ===== */
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 1.6rem;
+}
+
+/* Reset total: nada de fondo, borde, subrayado, padding raro */
+.navbar .nav-links .nav-item,
+.navbar .nav-links .nav-item:hover,
+.navbar .nav-links .nav-item:focus,
+.navbar .nav-links .nav-item:active,
+.navbar .nav-links .nav-item.router-link-active,
+.navbar .nav-links .nav-item.router-link-exact-active {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  text-decoration: none !important;
+  padding: 0.35rem 0 !important;
+}
+
+/* Por si algún global mete ::before / ::after */
+.navbar .nav-links .nav-item::before,
+.navbar .nav-links .nav-item::after,
+.navbar .nav-links .nav-item.router-link-active::before,
+.navbar .nav-links .nav-item.router-link-active::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  border: none !important;
 }
 
 .nav-item {
-  position: relative;
-  text-decoration: none;
-  color: var(--text-main);
-  opacity: 0.86;
-  font-size: 0.9rem;
+  color: var(--text-muted) !important;
+  font-size: 0.855rem;
   font-weight: 500;
-  padding: 0.5rem 0.85rem;
-  border-radius: 10px;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
+  letter-spacing: 0.005em;
+  transition: color 0.2s ease;
+  text-decoration: none !important;
 }
 
 .nav-item:hover {
-  opacity: 1;
-  background: var(--hover-bg);
+  color: var(--hover-text) !important;
 }
 
-.nav-item.router-link-active {
-  opacity: 1;
-  color: var(--active-text);
-  background: var(--active-bg);
+/* ACTIVO: SOLO color de texto. Nada más. */
+.nav-item.router-link-active,
+.nav-item.router-link-exact-active {
+  color: var(--link-active) !important;
   font-weight: 600;
 }
 
-.nav-item.router-link-active::after {
-  content: '';
-  position: absolute;
-  bottom: 3px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 18px;
-  height: 2.5px;
-  border-radius: 999px;
-  background: var(--accent-grad);
+/* ===== TOOLS ===== */
+.nav-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
 }
 
-.theme-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  border: 1px solid var(--nav-border);
-  background: var(--hover-bg);
-  color: var(--text-main);
+.tool-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--tool-border);
+  background: var(--tool-bg);
+  color: var(--text-muted);
   cursor: pointer;
   display: grid;
   place-items: center;
-  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
-.theme-btn:hover {
-  transform: scale(1.05);
-  border-color: var(--active-text);
+.tool-btn:hover {
+  color: var(--text-main);
+  background: var(--tool-hover);
 }
 
+/* ===== MENU TOGGLE (dos barras) ===== */
 .menu-toggle {
   display: none;
   flex-direction: column;
   justify-content: center;
   gap: 5px;
-  width: 38px;
-  height: 38px;
-  padding: 8px;
-  border-radius: 10px;
-  border: 1px solid var(--nav-border);
-  background: var(--hover-bg);
+  width: 32px;
+  height: 32px;
+  padding: 7px;
+  border-radius: 8px;
+  border: 1px solid var(--tool-border);
+  background: var(--tool-bg);
   cursor: pointer;
 }
 
 .menu-toggle span {
   display: block;
   width: 100%;
-  height: 2px;
+  height: 1.5px;
   border-radius: 2px;
   background: var(--text-main);
   transition: transform 0.25s ease, opacity 0.2s ease;
 }
 
 .menu-toggle.active span:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
+  transform: translateY(3.25px) rotate(45deg);
 }
 .menu-toggle.active span:nth-child(2) {
-  opacity: 0;
-}
-.menu-toggle.active span:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
+  transform: translateY(-3.25px) rotate(-45deg);
 }
 
+/* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
+  .navbar-inner {
+    padding: 0.6rem 1.25rem;
+  }
+
   .menu-toggle {
     display: flex;
   }
@@ -358,16 +334,37 @@ watch(isDark, (val) => {
     right: 0;
     flex-direction: column;
     align-items: stretch;
-    padding: 0.85rem 1.5rem 1.1rem;
+    gap: 0;
+    padding: 0.5rem 0 0.75rem;
     background: var(--nav-bg);
-    backdrop-filter: blur(16px);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
     border-bottom: 1px solid var(--nav-border);
-    box-shadow: var(--shadow);
     display: none;
   }
 
   .nav-links.open {
     display: flex;
+  }
+
+  .navbar .nav-links .nav-item {
+    padding: 0.85rem 1.25rem !important;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--nav-border) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+
+  .navbar .nav-links .nav-item:last-child {
+    border-bottom: none !important;
+  }
+
+  .navbar .nav-links .nav-item.router-link-active,
+  .navbar .nav-links .nav-item.router-link-exact-active {
+    color: var(--link-active) !important;
+    font-weight: 600;
+    background: transparent !important;
+    border-left: none !important;
   }
 }
 </style>

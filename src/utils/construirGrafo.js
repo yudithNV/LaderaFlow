@@ -2,7 +2,7 @@ import redLaPaz from '../data/redLaPaz.json'
 
 const pesoValido = valor => {
   const peso = Number(valor)
-  return Number.isFinite(peso) && peso > 0 ? peso : 0.01
+  return Number.isFinite(peso) && peso > 0 ? peso : null
 }
 
 export function construirGrafo(escenario = 'normal') {
@@ -63,7 +63,8 @@ export function construirGrafo(escenario = 'normal') {
         lineaId: linea.id
       })
 
-      const fila = pesoValido(linea.fila?.[escenarioValido])
+      // En paro el teleférico sigue funcionando; solo protegemos null por seguridad.
+      const fila = pesoValido(linea.fila?.[escenarioValido]) ?? 0.01
 
       // Subir a la línea cuesta la fila; bajar al nodo visible casi no cuesta.
       agregarArista(estacionId, internoId, fila, {
@@ -81,7 +82,7 @@ export function construirGrafo(escenario = 'normal') {
     for (let i = 0; i < linea.tramos.length; i += 1) {
       const estacionA = linea.estaciones[i]
       const estacionB = linea.estaciones[i + 1]
-      const tramo = pesoValido(linea.tramos[i])
+      const tramo = pesoValido(linea.tramos[i]) ?? 0.01
 
       agregarArista(internosPorEstacion.get(estacionA), internosPorEstacion.get(estacionB), tramo, {
         kind: 'tramo',
@@ -106,6 +107,8 @@ export function construirGrafo(escenario = 'normal') {
       if (!visibleIds.has(conexion.con)) continue
 
       const tiempo = pesoValido(conexion.min?.[escenarioValido])
+      if (tiempo === null) continue
+
       agregarArista(punto.id, conexion.con, tiempo, {
         kind: 'caminata',
         desdeId: punto.id,
@@ -124,14 +127,18 @@ export function construirGrafo(escenario = 'normal') {
     if (!visibleIds.has(enlace.de) || !visibleIds.has(enlace.a)) continue
 
     const tiempo = pesoValido(enlace.min?.[escenarioValido])
+    if (tiempo === null) continue // en paro el minibús no circula: no se crea la arista
+
+    const tipo = enlace.tipoPorEscenario?.[escenarioValido] || enlace.tipo
+
     agregarArista(enlace.de, enlace.a, tiempo, {
-      kind: enlace.tipo,
+      kind: tipo,
       desdeId: enlace.de,
       haciaId: enlace.a,
       nota: enlace.nota || ''
     })
     agregarArista(enlace.a, enlace.de, tiempo, {
-      kind: enlace.tipo,
+      kind: tipo,
       desdeId: enlace.a,
       haciaId: enlace.de,
       nota: enlace.nota || ''

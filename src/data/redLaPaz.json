@@ -260,7 +260,34 @@
           }
         }
       ]
-    }
+    },
+    {
+  "id": "san-pedro",
+  "nombre": "San Pedro",
+  "x": 520,
+  "y": 345,
+  "conexiones": [
+    { "con": "faro-murillo", "tipo": "caminata", "min": { "normal": 15, "pico": 15, "paro": 15 } }
+  ]
+},
+{
+  "id": "villa-fatima",
+  "nombre": "Villa Fátima",
+  "x": 880,
+  "y": 150,
+  "conexiones": [
+    { "con": "las-villas", "tipo": "caminata", "min": { "normal": 12, "pico": 12, "paro": 12 } }
+  ]
+},
+{
+  "id": "plaza-abaroa",
+  "nombre": "Plaza Abaroa (Sopocachi)",
+  "x": 690,
+  "y": 445,
+  "conexiones": [
+    { "con": "sopocachi", "tipo": "caminata", "min": { "normal": 8, "pico": 8, "paro": 8 } }
+  ]
+}
   ],
   "lineas": [
     {
@@ -474,9 +501,12 @@
       "min": {
         "normal": 17,
         "pico": 25,
-        "paro": 50
+        "paro": 10
       },
-      "nota": "en paro se hace a pie"
+      "tipoPorEscenario": {
+        "paro": "caminata"
+      },
+      "nota": "en paro se hace a pie (10 min)"
     }, 
     { "de": "centro", "a": "ucb", "tipo": "minibus",
   "min": { "normal": 25, "pico": 40, "paro": null }, "nota": "no circula en paro" },

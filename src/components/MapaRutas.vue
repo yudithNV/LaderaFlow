@@ -10,12 +10,15 @@ const props = defineProps({
   repeatKey: {
     type: Number,
     default: 0
+  },
+  escenario: {
+    type: String,
+    default: 'normal'
   }
 })
 
 const tramosActivos = ref(0)
 const animacionActiva = ref(false)
-let temporizadorAnimacion = null
 
 // Índices rápidos para obtener las coordenadas de cada nodo por su id.
 const estacionesPorId = computed(() => {
@@ -126,6 +129,7 @@ const conexionesPuntos = computed(() => {
 
       conexiones.push({
         key: `${punto.id}-${conexion.con}`,
+        tipo: conexion.tipo || 'caminata',
         inicioId: punto.id,
         finId: conexion.con,
         x1: punto.x,
@@ -149,6 +153,7 @@ const conexionesEnlaces = computed(() => {
 
     return [{
       key: `${enlace.de}-${enlace.a}`,
+      tipo: enlace.tipoPorEscenario?.[props.escenario] || enlace.tipo || 'minibus',
       x1: origen.x,
       y1: origen.y,
       x2: destino.x,
@@ -193,7 +198,9 @@ const tramosRuta = computed(() => {
         x1: avanzaAlReves ? segmentoLinea.x2 : segmentoLinea.x1,
         y1: avanzaAlReves ? segmentoLinea.y2 : segmentoLinea.y1,
         x2: avanzaAlReves ? segmentoLinea.x1 : segmentoLinea.x2,
-        y2: avanzaAlReves ? segmentoLinea.y1 : segmentoLinea.y2
+        y2: avanzaAlReves ? segmentoLinea.y1 : segmentoLinea.y2,
+        tipo: 'teleferico',
+        color: segmentoLinea.linea.color
       })
       continue
     }
@@ -209,7 +216,9 @@ const tramosRuta = computed(() => {
         x1: origenId === conexionPunto.inicioId ? conexionPunto.x1 : conexionPunto.x2,
         y1: origenId === conexionPunto.inicioId ? conexionPunto.y1 : conexionPunto.y2,
         x2: destinoId === conexionPunto.finId ? conexionPunto.x2 : conexionPunto.x1,
-        y2: destinoId === conexionPunto.finId ? conexionPunto.y2 : conexionPunto.y1
+        y2: destinoId === conexionPunto.finId ? conexionPunto.y2 : conexionPunto.y1,
+        tipo: conexionPunto.tipo,
+        color: '#34d399'
       })
       continue
     }
@@ -226,7 +235,9 @@ const tramosRuta = computed(() => {
         x1: avanzaAlReves ? conexionEnlace.x2 : conexionEnlace.x1,
         y1: avanzaAlReves ? conexionEnlace.y2 : conexionEnlace.y1,
         x2: avanzaAlReves ? conexionEnlace.x1 : conexionEnlace.x2,
-        y2: avanzaAlReves ? conexionEnlace.y1 : conexionEnlace.y2
+        y2: avanzaAlReves ? conexionEnlace.y1 : conexionEnlace.y2,
+        tipo: conexionEnlace.tipo,
+        color: '#34d399'
       })
     }
   }
@@ -234,39 +245,67 @@ const tramosRuta = computed(() => {
   return tramos
 })
 
-const reiniciarAnimacion = () => {
-  if (temporizadorAnimacion) {
-    clearInterval(temporizadorAnimacion)
-    temporizadorAnimacion = null
-  }
+const vehiculo = ref({ x: 0, y: 0, tipo: 'teleferico', color: '#34d399', volteado: false })
+let frameId = null
 
+// Velocidad en px/segundo para cada medio
+const VELOCIDAD = { teleferico: 200, caminata: 90, minibus: 240 }
+
+const detenerAnimacion = () => {
+  if (frameId) cancelAnimationFrame(frameId)
+  frameId = null
+}
+
+const reiniciarAnimacion = () => {
+  detenerAnimacion()
   tramosActivos.value = 0
   animacionActiva.value = tramosRuta.value.length > 0
-
   if (!animacionActiva.value) return
 
-  // El primer tramo aparece de inmediato y los siguientes cada 600 ms.
-  tramosActivos.value = 1
+  const tramos = tramosRuta.value
+  let indice = 0
+  let inicio = null
 
-  temporizadorAnimacion = setInterval(() => {
-    if (tramosActivos.value < tramosRuta.value.length) {
-      tramosActivos.value += 1
-    } else {
-      clearInterval(temporizadorAnimacion)
-      temporizadorAnimacion = null
+  const duracionDe = tramo => {
+    const largo = Math.hypot(tramo.x2 - tramo.x1, tramo.y2 - tramo.y1)
+    return Math.max(450, (largo / (VELOCIDAD[tramo.tipo] || 150)) * 1000)
+  }
+
+  const paso = ahora => {
+    const tramo = tramos[indice]
+    if (inicio === null) {
+      inicio = ahora
+      tramosActivos.value = indice + 1
     }
-  }, 600)
+
+    const progreso = Math.min((ahora - inicio) / duracionDe(tramo), 1)
+    vehiculo.value = {
+      x: tramo.x1 + (tramo.x2 - tramo.x1) * progreso,
+      y: tramo.y1 + (tramo.y2 - tramo.y1) * progreso,
+      tipo: tramo.tipo,
+      color: tramo.color,
+      volteado: tramo.x2 < tramo.x1
+    }
+
+    if (progreso < 1) {
+      frameId = requestAnimationFrame(paso)
+    } else if (indice < tramos.length - 1) {
+      indice += 1
+      inicio = null
+      frameId = requestAnimationFrame(paso)
+    }
+  }
+
+  frameId = requestAnimationFrame(paso)
 }
 
 watch(
-  [() => props.ruta, () => props.repeatKey],
+  [() => props.ruta, () => props.repeatKey, () => props.escenario],
   reiniciarAnimacion,
   { immediate: true, deep: true }
 )
 
-onBeforeUnmount(() => {
-  if (temporizadorAnimacion) clearInterval(temporizadorAnimacion)
-})
+onBeforeUnmount(detenerAnimacion)
 </script>
 
 <template>
@@ -351,25 +390,9 @@ onBeforeUnmount(() => {
 
         <!-- El camino óptimo se dibuja encima, tramo por tramo -->
         <g v-if="animacionActiva" class="route-animation" aria-hidden="true">
-          <g
-            v-for="(tramo, index) in tramosRuta.slice(0, tramosActivos)"
-            :key="`glow-${tramo.key}`"
-          >
-            <line
-              class="route-glow"
-              :x1="tramo.x1"
-              :y1="tramo.y1"
-              :x2="tramo.x2"
-              :y2="tramo.y2"
-            />
-            <line
-              class="route-dash"
-              :x1="tramo.x1"
-              :y1="tramo.y1"
-              :x2="tramo.x2"
-              :y2="tramo.y2"
-              :style="{ animationDelay: `${index * 80}ms` }"
-            />
+          <g v-for="tramo in tramosRuta.slice(0, tramosActivos)" :key="`glow-${tramo.key}`">
+            <line class="route-glow" :x1="tramo.x1" :y1="tramo.y1" :x2="tramo.x2" :y2="tramo.y2" />
+            <line class="route-line" :x1="tramo.x1" :y1="tramo.y1" :x2="tramo.x2" :y2="tramo.y2" />
           </g>
         </g>
 
@@ -413,6 +436,61 @@ onBeforeUnmount(() => {
           >
             {{ punto.nombre }}
           </text>
+        </g>
+
+        <g
+          v-if="animacionActiva"
+          class="vehiculo"
+          :transform="`translate(${vehiculo.x} ${vehiculo.y})`"
+          aria-hidden="true"
+        >
+          <!-- Cabina de teleférico (no se voltea) -->
+          <g
+            v-if="vehiculo.tipo === 'teleferico'"
+            class="icono-vehiculo"
+            :style="{ color: vehiculo.color }"
+            transform="translate(-12 -12)"
+          >
+            <path d="M10 3h.01" />
+            <path d="M14 2h.01" />
+            <path d="m2 9 20-5" />
+            <path d="M12 12V6.5" />
+            <rect width="16" height="10" x="4" y="12" rx="3" />
+            <path d="M9 12v5" />
+            <path d="M15 12v5" />
+            <path d="M4 17h16" />
+          </g>
+
+          <!-- Persona caminando -->
+          <g
+            v-else-if="vehiculo.tipo === 'caminata'"
+            class="icono-vehiculo"
+            transform="translate(-12 -12)"
+          >
+            <g :transform="vehiculo.volteado ? 'scale(-1 1) translate(-24 0)' : ''">
+              <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" />
+              <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" />
+              <path d="M16 17h4" />
+              <path d="M4 13h4" />
+            </g>
+          </g>
+
+          <!-- Bus / minibús -->
+          <g
+            v-else
+            class="icono-vehiculo"
+            transform="translate(-12 -12)"
+          >
+            <g :transform="vehiculo.volteado ? 'scale(-1 1) translate(-24 0)' : ''">
+              <path d="M8 6v6" />
+              <path d="M15 6v6" />
+              <path d="M2 12h19.6" />
+              <path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3" />
+              <circle cx="7" cy="18" r="2" />
+              <path d="M9 18h5" />
+              <circle cx="16" cy="18" r="2" />
+            </g>
+          </g>
         </g>
       </svg>
     </div>
@@ -552,19 +630,22 @@ onBeforeUnmount(() => {
   filter: drop-shadow(0 0 7px #10b981);
 }
 
-.route-dash {
+.route-line {
   fill: none;
   stroke: #34d399;
-  stroke-width: 7;
+  stroke-width: 5;
   stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 18 10;
-  animation: avanzar-trazo 600ms linear infinite;
 }
 
-@keyframes avanzar-trazo {
-  from { stroke-dashoffset: 28; }
-  to { stroke-dashoffset: 0; }
+.vehiculo { pointer-events: none; }
+
+.icono-vehiculo {
+  fill: none;
+  stroke: var(--text-primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px var(--bg-surface));
 }
 
 .station.route-node circle,
