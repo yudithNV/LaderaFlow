@@ -2,11 +2,12 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 
 const menuOpen = ref(false)
-const isDark = ref(true)
+const isDark = ref(false)
 const creditsMenu = ref(null)
 const creditsOpen = ref(false)
 const creditsHovered = ref(false)
 const creditsVisible = computed(() => creditsOpen.value || creditsHovered.value)
+const themeStorageKey = 'ladera-theme-v2'
 
 const links = [
   { label: 'Introducción', to: '/introduccion' },
@@ -20,7 +21,7 @@ const links = [
 const applyTheme = (dark) => {
   const theme = dark ? 'dark' : 'light'
   document.documentElement.setAttribute('data-theme', theme)
-  localStorage.setItem('ladera-theme', theme)
+  localStorage.setItem(themeStorageKey, theme)
 }
 
 const closeCredits = () => {
@@ -35,7 +36,7 @@ const handleOutsideClick = (event) => {
 }
 
 onMounted(() => {
-  const saved = localStorage.getItem('ladera-theme')
+  const saved = localStorage.getItem(themeStorageKey)
   if (saved === 'light' || saved === 'dark') {
     isDark.value = saved === 'dark'
   }
