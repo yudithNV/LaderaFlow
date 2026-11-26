@@ -1,8 +1,12 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 
 const menuOpen = ref(false)
 const isDark = ref(true)
+const creditsMenu = ref(null)
+const creditsOpen = ref(false)
+const creditsHovered = ref(false)
+const creditsVisible = computed(() => creditsOpen.value || creditsHovered.value)
 
 const links = [
   { label: 'Introducción', to: '/introduccion' },
@@ -19,12 +23,28 @@ const applyTheme = (dark) => {
   localStorage.setItem('ladera-theme', theme)
 }
 
+const closeCredits = () => {
+  creditsOpen.value = false
+  creditsHovered.value = false
+}
+
+const handleOutsideClick = (event) => {
+  if (creditsMenu.value && !creditsMenu.value.contains(event.target)) {
+    closeCredits()
+  }
+}
+
 onMounted(() => {
   const saved = localStorage.getItem('ladera-theme')
   if (saved === 'light' || saved === 'dark') {
     isDark.value = saved === 'dark'
   }
   applyTheme(isDark.value)
+  document.addEventListener('click', handleOutsideClick)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleOutsideClick)
 })
 
 watch(isDark, (val) => {
@@ -73,6 +93,59 @@ watch(isDark, (val) => {
         >
           {{ link.label }}
         </RouterLink>
+
+        <div
+          ref="creditsMenu"
+          class="credits-menu"
+          :class="{ 'is-open': creditsVisible }"
+          @mouseenter="creditsHovered = true"
+          @mouseleave="creditsHovered = false"
+          @keydown.esc.stop.prevent="closeCredits"
+          @click.stop
+        >
+          <button
+            class="nav-item credits-trigger"
+            type="button"
+            aria-haspopup="dialog"
+            aria-controls="project-credits"
+            :aria-expanded="creditsVisible"
+            @click="creditsOpen = !creditsOpen"
+          >
+            Créditos
+            <span class="credits-chevron" aria-hidden="true">⌄</span>
+          </button>
+          <section
+            id="project-credits"
+            class="credits-card"
+            :hidden="!creditsVisible"
+            role="dialog"
+            aria-labelledby="credits-title"
+          >
+            <h2 id="credits-title">Datos del proyecto</h2>
+            <dl>
+              <div>
+                <dt>Autor/a</dt>
+                <dd>Noa Vargas, Yudith</dd>
+              </div>
+              <div>
+                <dt>Correo</dt>
+                <dd><a href="mailto:yudith.noa@ucb.edu.bo">yudith.noa@ucb.edu.bo</a></dd>
+              </div>
+              <div>
+                <dt>Materia</dt>
+                <dd>Análisis de algoritmos</dd>
+              </div>
+              <div>
+                <dt>Docente</dt>
+                <dd>Ing. Vicente Yamil Cardenas Miguel</dd>
+              </div>
+              <div>
+                <dt>Carrera</dt>
+                <dd>Ingeniería de Sistemas</dd>
+              </div>
+            </dl>
+          </section>
+        </div>
       </nav>
 
       <div class="nav-tools">
@@ -140,6 +213,9 @@ watch(isDark, (val) => {
   --tool-border: rgba(255, 255, 255, 0.09);
   --tool-bg: rgba(255, 255, 255, 0.04);
   --tool-hover: rgba(255, 255, 255, 0.08);
+  --credits-bg: rgba(24, 18, 38, 0.98);
+  --credits-border: rgba(255, 255, 255, 0.1);
+  --credits-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
 }
 
 .navbar.theme-light {
@@ -153,6 +229,9 @@ watch(isDark, (val) => {
   --tool-border: rgba(30, 16, 53, 0.1);
   --tool-bg: rgba(30, 16, 53, 0.03);
   --tool-hover: rgba(30, 16, 53, 0.06);
+  --credits-bg: rgba(250, 248, 255, 0.98);
+  --credits-border: rgba(30, 16, 53, 0.12);
+  --credits-shadow: 0 16px 40px rgba(34, 20, 54, 0.16);
 }
 
 .navbar {
@@ -260,6 +339,92 @@ watch(isDark, (val) => {
   font-weight: 600;
 }
 
+.credits-menu {
+  position: relative;
+}
+
+.credits-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.credits-chevron {
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+}
+
+.credits-menu.is-open .credits-chevron {
+  transform: rotate(180deg);
+}
+
+.credits-card {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 110;
+  width: min(300px, calc(100vw - 2rem));
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--credits-border);
+  border-radius: 14px;
+  background: var(--credits-bg);
+  box-shadow: var(--credits-shadow);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: var(--text-main);
+}
+
+.credits-card[hidden] {
+  display: none;
+}
+
+.credits-card h2 {
+  margin: 0 0 0.8rem;
+  color: var(--text-main);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.credits-card dl {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+}
+
+.credits-card dl > div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.credits-card dt {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.credits-card dd {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.credits-card a {
+  color: var(--link-active);
+  text-decoration: none;
+}
+
+.credits-card a:hover {
+  text-decoration: underline;
+}
+
 /* ===== TOOLS ===== */
 .nav-tools {
   display: flex;
@@ -318,7 +483,7 @@ watch(isDark, (val) => {
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 900px) {
+@media (max-width: 980px) {
   .navbar-inner {
     padding: 0.6rem 1.25rem;
   }
@@ -365,6 +530,19 @@ watch(isDark, (val) => {
     font-weight: 600;
     background: transparent !important;
     border-left: none !important;
+  }
+
+  .credits-trigger {
+    width: 100%;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  .credits-card {
+    position: static;
+    width: auto;
+    margin: 0.25rem 1rem 0.85rem;
+    box-shadow: none;
   }
 }
 </style>

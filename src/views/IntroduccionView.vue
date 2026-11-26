@@ -1,4 +1,5 @@
 <script setup>
+import capturaSistema from '../assets/captura-sistema.png' // ajusta la ruta según dónde esté tu componente
 const transportModes = [
   {
     code: 'TLF',
@@ -16,12 +17,19 @@ const transportModes = [
     detail: 'Caminatas cortas de enlace entre estaciones y paradas clave medidas en minutos reales.',
   },
 ]
+
+const stats = [
+  { value: '4,000', unit: 'm', label: 'Desnivel topográfico' },
+  { value: '10', unit: 'Líneas', label: 'Red de Teleférico' },
+  { value: '3x', unit: 'Var.', label: 'Cambio en hora pico' },
+  { value: '32', unit: 'Nodos', label: 'Modelados en el grafo' },
+]
 </script>
 
 <template>
   <section class="view intro-layout">
 
-    <!-- HERO EDITORIAL SIN CARD -->
+    <!-- 1. HERO EDITORIAL -->
     <div class="hero">
       <div class="hero-copy">
         <div class="kicker-row">
@@ -52,17 +60,8 @@ const transportModes = [
             Cómo funciona Dijkstra
           </RouterLink>
         </div>
-
-        <div class="meta-strip">
-          <span><b>32</b> nodos activos</span>
-          <span class="sep">/</span>
-          <span><b>10</b> líneas de cable</span>
-          <span class="sep">/</span>
-          <span><b>redLaPaz.json</b></span>
-        </div>
       </div>
 
-      <!-- Diagrama SVG sin caja -->
       <div class="hero-diagram" aria-hidden="true">
         <svg viewBox="0 0 380 290" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -89,9 +88,7 @@ const transportModes = [
 
           <path d="M24 98 L98 104 L168 188 L244 206 L356 218 L356 265 L24 265 Z" fill="url(#mountainFill)" />
           <path d="M24 98 L98 104 L168 188 L244 206 L356 218" stroke="#9b72e8" stroke-opacity="0.3" stroke-width="1.5" />
-
           <path d="M54 96 C92 145, 118 195, 174 196 C225 197, 255 224, 326 216" stroke="#ec4899" stroke-opacity="0.45" stroke-width="2" stroke-dasharray="5 5" />
-
           <path d="M54 74 L184 128 L326 184" stroke="url(#cableStroke)" stroke-width="3" stroke-linecap="round" />
 
           <line x1="54" y1="74" x2="54" y2="98" stroke="#ec4899" stroke-width="2" />
@@ -122,7 +119,31 @@ const transportModes = [
       </div>
     </div>
 
-    <!-- MODOS: columnas con separadores, sin cards -->
+    <!-- 2. NUEVO: PANEL DE ESTADÍSTICAS IMPONENTE -->
+    <div class="stats-panel">
+      <div v-for="(stat, i) in stats" :key="i" class="stat-item">
+        <div class="stat-value">{{ stat.value }}<span class="stat-unit">{{ stat.unit }}</span></div>
+        <div class="stat-label">{{ stat.label }}</div>
+      </div>
+    </div>
+
+    <!-- 3. NUEVO: EL DESAFÍO PACCEÑO (Texto denso para el inge) -->
+    <div class="challenge-row">
+      <div class="challenge-title">
+        <span class="eyebrow">El Desafío Paceño</span>
+        <h2>La topología como variable de peso.</h2>
+      </div>
+      <div class="challenge-text">
+        <p>
+          Moverse en La Paz no es un problema de distancia euclidiana. Es un problema de <strong>optimización de recursos en un entorno hostil</strong>. Un trayecto entre la Ceja y Obrajes puede demorar 25 minutos a las 10:00 a.m., pero hasta 75 minutos a las 18:30 p.m. por saturación vehicular y filas en las estaciones.
+        </p>
+        <p>
+          Los mapas tradicionales fallan porque asumen pesos estáticos. Este proyecto introduce un <strong>grafo dirigido con pesos dinámicos</strong>, donde las aristas representan minutos reales de viaje. Al aplicar el algoritmo de Dijkstra sobre esta red, el sistema no solo encuentra la ruta más corta, sino que <strong>reconfigura la topología completa</strong> si el usuario simula un bloqueo o un paro de transportistas.
+        </p>
+      </div>
+    </div>
+
+    <!-- 4. MODOS DE TRANSPORTE -->
     <div class="modes-row">
       <article v-for="(mode, i) in transportModes" :key="mode.code" class="mode-col" :class="{ 'mode-col--first': i === 0 }">
         <div class="mode-header">
@@ -133,7 +154,58 @@ const transportModes = [
       </article>
     </div>
 
-    <!-- BLOQUE INFERIOR: texto + media sin marcos -->
+    <!-- 5. NUEVO: GALERÍA / PREVIEWS (Las imágenes que pediste) -->
+    <div class="preview-section">
+      <div class="preview-header">
+        <span class="eyebrow">Vistas del Sistema</span>
+        <h2>De los datos a la decisión.</h2>
+      </div>
+      
+      <div class="preview-grid">
+        <div class="preview-card">
+          <div class="preview-image mockup-1">
+            <!-- SVG simulado de un mapa -->
+            <svg viewBox="0 0 100 60" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="20" cy="30" r="3" fill="var(--accent-pink)"/>
+              <circle cx="80" cy="20" r="3" fill="var(--accent-green)"/>
+              <path d="M20 30 Q 50 10 80 20" stroke-dasharray="3 3"/>
+            </svg>
+            <span class="preview-tag">Interfaz</span>
+          </div>
+          <h3>Mapa Interactivo</h3>
+          <p>Selección de origen y destino con renderizado en tiempo real de las 32 estaciones.</p>
+        </div>
+
+        <div class="preview-card">
+          <div class="preview-image mockup-2">
+            <!-- SVG simulado de código/grafo -->
+            <svg viewBox="0 0 100 60" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="30" y="15" width="40" height="30" rx="4" />
+              <path d="M40 30 L 60 30 M 50 20 L 50 40" />
+            </svg>
+            <span class="preview-tag">Algoritmo</span>
+          </div>
+          <h3>Motor Dijkstra</h3>
+          <p>Cálculo de la ruta óptima con matrices de adyacencia y colas de prioridad.</p>
+        </div>
+
+        <div class="preview-card">
+          <div class="preview-image mockup-3">
+            <!-- SVG simulado de gráficos -->
+            <svg viewBox="0 0 100 60" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="20" y="40" width="10" height="10" />
+              <rect x="45" y="25" width="10" height="25" />
+              <rect x="70" y="15" width="10" height="35" />
+            </svg>
+            <span class="preview-tag">Métricas</span>
+          </div>
+          <h3>Comparativa de Escenarios</h3>
+          <p>Visualización de la diferencia de minutos entre hora pico, flujo normal y paros.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. SHOWCASE INFERIOR (Por qué tiempo y no distancia) -->
     <div class="showcase-row">
       <div class="context-block">
         <span class="eyebrow">Motivación del modelo</span>
@@ -141,22 +213,19 @@ const transportModes = [
         <p>
           En una ciudad con pendientes pronunciadas y cuellos de botella viales, dos puntos
           cercanos en el mapa pueden tomar el doble de tiempo según la hora del día. Al
-          separar la topología de la red en <code>redLaPaz.json</code>, el sistema recalcula
-          en milisegundos cómo cambian las decisiones cuando sube la demanda o se corta el
-          transporte vehicular.
+          separar la estructura de la red de transporte de los tiempos de cada conexión,
+          el sistema recalcula en milisegundos cómo cambian las decisiones cuando sube la
+          demanda o se corta el transporte vehicular.
         </p>
       </div>
 
       <figure class="media-block">
-        <div class="media-canvas">
-          <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-            <rect x="3" y="4" width="18" height="16" rx="3" />
-            <circle cx="8.5" cy="9.5" r="1.5" />
-            <path d="M21 15l-5-4.5L7 20" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          <span>Vista del mapa / captura de La Paz</span>
-        </div>
-        <figcaption>Espacio listo para insertar imagen o video demostrativo del recorrido.</figcaption>
+        <img
+          :src="capturaSistema"
+          alt="Captura de pantalla del sistema LaderaFlow en funcionamiento"
+          class="media-img"
+        />
+        <figcaption>El sistema está diseñado para adaptarse a futuras expansiones de la red de teleférico.</figcaption>
       </figure>
     </div>
 
@@ -165,14 +234,13 @@ const transportModes = [
 
 <style scoped>
 /* ============================================================
-   RESET DEL CONTENEDOR DE LA VISTA
-   Anula el "card" que mete el CSS global (section.view / .view)
+   RESET DEL CONTENEDOR
    ============================================================ */
 .intro-layout,
 section.view.intro-layout {
   display: flex;
   flex-direction: column;
-  gap: clamp(40px, 6vw, 72px);
+  gap: clamp(48px, 6vw, 80px);
   padding: 0;
   margin: 0;
   border: none;
@@ -182,7 +250,7 @@ section.view.intro-layout {
   outline: none;
 }
 
-/* ============ HERO SIN CARD (reset agresivo) ============ */
+/* ============ HERO ============ */
 .hero {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
@@ -191,20 +259,12 @@ section.view.intro-layout {
   padding: 0;
   margin: 0;
   border: none;
-  border-radius: 0;
   background: transparent;
-  box-shadow: none;
-  outline: none;
 }
 
-/* Cualquier wrapper interno tampoco debe pintar caja */
-.hero > *,
-.hero-copy,
-.hero-diagram {
+.hero > *, .hero-copy, .hero-diagram {
   border: none;
-  border-radius: 0;
   background: transparent;
-  box-shadow: none;
 }
 
 .kicker-row {
@@ -281,7 +341,6 @@ section.view.intro-layout {
   font-size: 0.92rem;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
-  background: transparent;
   transition: border-color 160ms ease, color 160ms ease;
 }
 
@@ -290,28 +349,6 @@ section.view.intro-layout {
   color: var(--accent-solid);
 }
 
-.meta-strip {
-  margin-top: 32px;
-  padding-top: 18px;
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.76rem;
-  color: var(--text-secondary);
-}
-
-.meta-strip b {
-  color: var(--text-primary);
-}
-
-.meta-strip .sep {
-  opacity: 0.35;
-}
-
-/* Diagrama flotante sin caja */
 .hero-diagram svg {
   width: 100%;
   height: auto;
@@ -327,7 +364,89 @@ section.view.intro-layout {
   to { transform: translate(34px, 14px); }
 }
 
-/* ============ MODOS COMO COLUMNAS EDITORIALES ============ */
+/* ============ NUEVO: PANEL DE ESTADÍSTICAS ============ */
+.stats-panel {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 24px 0;
+}
+
+.stat-item {
+  padding: 0 24px;
+  border-right: 1px solid var(--border-color);
+}
+
+.stat-item:last-child {
+  border-right: none;
+}
+
+.stat-value {
+  font-family: "JetBrains Mono", monospace;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stat-unit {
+  font-size: 0.9rem;
+  color: var(--accent-solid);
+  margin-left: 4px;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ============ NUEVO: EL DESAFÍO PACEÑO ============ */
+.challenge-row {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: clamp(32px, 5vw, 64px);
+  align-items: start;
+}
+
+.eyebrow {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-solid);
+  display: block;
+  margin-bottom: 14px;
+}
+
+.challenge-title h2 {
+  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.challenge-text p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.challenge-text p:last-child {
+  margin-bottom: 0;
+}
+
+.challenge-text strong {
+  color: var(--text-primary);
+}
+
+/* ============ MODOS ============ */
 .modes-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -364,16 +483,13 @@ section.view.intro-layout {
   margin: 0;
   font-size: 1.05rem;
   font-weight: 700;
-  letter-spacing: -0.01em;
 }
 
 .mode-code {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
   color: var(--accent-solid);
-  opacity: 0.85;
 }
 
 .mode-col p {
@@ -383,7 +499,93 @@ section.view.intro-layout {
   margin: 0;
 }
 
-/* ============ SHOWCASE INFERIOR SIN MARCOS ============ */
+/* ============ NUEVO: PREVIEWS / GALERÍA ============ */
+.preview-section {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.preview-header h2 {
+  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.preview-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.preview-image {
+  height: 160px;
+  border-radius: 8px;
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.preview-card:hover .preview-image {
+  transform: translateY(-4px);
+  border-color: var(--accent-solid);
+}
+
+.preview-image svg {
+  width: 60%;
+  height: 60%;
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.preview-tag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  background: var(--accent-soft-bg);
+  color: var(--accent-solid);
+  border-radius: 4px;
+}
+
+.preview-card h3 {
+  font-size: 1.05rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.preview-card p {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+}
+/* ============ NUEVO: SHOWCASE INFERIOR ============ */
+.media-img {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  display: block;
+}
+
+/* ============ SHOWCASE INFERIOR ============ */
 .showcase-row {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
@@ -391,17 +593,6 @@ section.view.intro-layout {
   align-items: start;
   padding-top: clamp(32px, 4vw, 48px);
   border-top: 1px solid var(--border-color);
-}
-
-.eyebrow {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent-solid);
-  display: block;
-  margin-bottom: 14px;
 }
 
 .context-block h2 {
@@ -461,29 +652,38 @@ section.view.intro-layout {
     grid-template-columns: 1fr;
     gap: 32px;
   }
-
   .hero-diagram {
     max-width: 480px;
     margin: 0 auto;
     width: 100%;
   }
-
+  .stats-panel {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 0;
+  }
+  .stat-item {
+    border-right: none;
+  }
+  .stat-item:nth-child(odd) {
+    border-right: 1px solid var(--border-color);
+  }
+  .challenge-row {
+    grid-template-columns: 1fr;
+  }
   .modes-row {
     grid-template-columns: 1fr;
   }
-
-  .mode-col,
-  .mode-col:not(.mode-col--first),
-  .mode-col--first {
+  .mode-col, .mode-col:not(.mode-col--first), .mode-col--first {
     padding: 24px 0;
     border-right: none;
     border-bottom: 1px solid var(--border-color);
   }
-
   .mode-col:last-child {
     border-bottom: none;
   }
-
+  .preview-grid {
+    grid-template-columns: 1fr;
+  }
   .showcase-row {
     grid-template-columns: 1fr;
     gap: 28px;

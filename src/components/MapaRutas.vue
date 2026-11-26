@@ -310,7 +310,11 @@ onBeforeUnmount(detenerAnimacion)
 
 <template>
   <article class="map-card" aria-label="Mapa estático de la red de La Paz">
-    <div class="map-scroll">
+    <div
+      class="map-scroll"
+      tabindex="0"
+      aria-label="Mapa desplazable horizontalmente para explorar la red"
+    >
       <svg
         class="network-map"
         :class="{ 'has-route': animacionActiva }"
@@ -494,6 +498,7 @@ onBeforeUnmount(detenerAnimacion)
         </g>
       </svg>
     </div>
+    <p class="map-scroll-hint">Desliza horizontalmente para explorar el mapa completo.</p>
 
     <!-- Leyenda compacta -->
     <div class="map-legend" aria-label="Leyenda del mapa">
@@ -535,6 +540,15 @@ onBeforeUnmount(detenerAnimacion)
   border-radius: 12px;
   background: var(--bg-surface);
   scrollbar-color: var(--accent-solid) var(--bg-surface-2);
+}
+
+.map-scroll:focus-visible {
+  outline: 2px solid var(--accent-solid);
+  outline-offset: 2px;
+}
+
+.map-scroll-hint {
+  display: none;
 }
 
 .network-map {
@@ -704,6 +718,14 @@ onBeforeUnmount(detenerAnimacion)
 @media (max-width: 640px) {
   .map-card {
     padding: 10px;
+  }
+
+  .map-scroll-hint {
+    display: block;
+    margin: 8px 0 0;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    text-align: center;
   }
 }
 </style>

@@ -25,9 +25,25 @@ const comparacion = ref([])
 const mensajeError = ref('')
 const caminoRuta = ref([])
 const repetirClave = ref(0)
+const limpiando = ref(false)
 
 const repetirAnimacion = () => {
   repetirClave.value += 1
+}
+
+const limpiar = () => {
+  limpiando.value = true
+  origenId.value = 'libertador'
+  destinoId.value = 'calacoto'
+  escenarioSeleccionado.value = 'normal'
+  resultado.value = null
+  comparacion.value = []
+  mensajeError.value = ''
+  caminoRuta.value = []
+  repetirClave.value = 0
+  setTimeout(() => {
+    limpiando.value = false
+  }, 0)
 }
 
 const nodosVisibles = computed(() => [
@@ -217,9 +233,10 @@ const calcular = () => {
   }
 }
 
-watch([origenId, destinoId, escenarioSeleccionado], calcular)
-
-
+watch([origenId, destinoId, escenarioSeleccionado], () => {
+  if (limpiando.value) return
+  calcular()
+})
 </script>
 
 <template>
@@ -323,12 +340,21 @@ watch([origenId, destinoId, escenarioSeleccionado], calcular)
           </div>
         </div>
 
-        <button class="calculate-button" type="button" @click="calcular">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-            <path d="M5 12h14M13 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          <span>Calcular ruta</span>
-        </button>
+        <div class="action-row">
+          <button class="clear-button" type="button" @click="limpiar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+              <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span>Limpiar</span>
+          </button>
+
+          <button class="calculate-button" type="button" @click="calcular">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+              <path d="M5 12h14M13 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span>Calcular ruta</span>
+          </button>
+        </div>
       </div>
     </article>
 
@@ -472,7 +498,7 @@ watch([origenId, destinoId, escenarioSeleccionado], calcular)
   --s-mono: "JetBrains Mono", ui-monospace, monospace;
 
   display: grid;
-   grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
+  grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
   grid-template-areas:
     "header header"
     "controls map"
@@ -674,6 +700,39 @@ watch([origenId, destinoId, escenarioSeleccionado], calcular)
 }
 .scenario-buttons button.active .btn-code { color: var(--s-green); }
 
+/* ===== Fila de acciones (Limpiar + Calcular) ===== */
+.action-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.clear-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--s-border);
+  border-radius: 10px;
+  background: var(--s-bg);
+  color: var(--s-muted);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.88rem;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  transition: 160ms ease;
+}
+.clear-button:hover {
+  border-color: var(--s-pink);
+  color: var(--s-pink);
+}
+.clear-button:active {
+  transform: translateY(1px);
+}
+
 .calculate-button {
   display: inline-flex;
   align-items: center;
@@ -689,6 +748,7 @@ watch([origenId, destinoId, escenarioSeleccionado], calcular)
   cursor: pointer;
   font-weight: 700;
   font-size: 0.92rem;
+  flex: 1 1 auto;
   transition: transform 160ms ease, filter 160ms ease;
 }
 .calculate-button:hover { transform: translateY(-1px); filter: brightness(1.1); }
@@ -926,8 +986,6 @@ watch([origenId, destinoId, escenarioSeleccionado], calcular)
   line-height: 1.35;
 }
 
-
-
 /* ===== Tablet y celular ===== */
 @media (max-width: 1023px) {
   .simulator-view {
@@ -946,6 +1004,8 @@ watch([origenId, destinoId, escenarioSeleccionado], calcular)
   .select-grid { grid-template-columns: 1fr 1fr; }
   .controls-bottom { flex-direction: row; align-items: flex-end; justify-content: space-between; }
   .scenario-row { flex: 1; }
+  .action-row { flex: 0 0 auto; }
+  .clear-button { min-width: 120px; }
   .calculate-button { width: auto; min-width: 180px; }
 }
 
@@ -953,5 +1013,7 @@ watch([origenId, destinoId, escenarioSeleccionado], calcular)
   .scenario-buttons button { font-size: 0.76rem; }
   .result-header { flex-direction: column; align-items: flex-start; }
   .trace-list { max-height: 340px; }
+  .action-row { flex-direction: column-reverse; }
+  .clear-button { width: 100%; }
 }
 </style>

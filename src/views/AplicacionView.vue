@@ -1,6 +1,6 @@
 <script setup>
 const imagenes = {
-  hero: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Telef%C3%A9rico_La_Paz_-_El_Alto.jpg/1280px-Telef%C3%A9rico_La_Paz_-_El_Alto.jpg',
+  hero: 'https://commons.wikimedia.org/wiki/Special:FilePath/Telef%C3%A9rico_La_Paz_-_El_Alto.jpg',
   heroAlt: 'Teleférico de La Paz y El Alto en funcionamiento',
 }
 </script>
@@ -15,11 +15,21 @@ const imagenes = {
       </div>
       <h1>Aplicación</h1>
       <p class="lead">
-        El modelo de Dijkstra implementado sobre <code>redLaPaz.json</code> permite
-        calcular rutas de menor tiempo combinando teleférico, minibús y caminata.
+        El modelo de Dijkstra sobre la red de transporte de La Paz permite calcular rutas
+        de menor tiempo combinando teleférico, minibús y caminata.
         Aquí se describe cómo funciona el simulador antes de abrirlo.
       </p>
     </header>
+
+    <!-- BOTÓN DEL SIMULADOR (arriba) -->
+    <div class="cta-section">
+      <RouterLink class="cta-button" to="/aplicacion/simulador">
+        <span>Abrir simulador interactivo</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+          <path d="M5 12h14M13 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </RouterLink>
+    </div>
 
     <figure class="hero-media">
       <img
@@ -102,118 +112,195 @@ const imagenes = {
       </div>
     </section>
 
-    <!-- MAPA ESQUEMÁTICO DE LA RED (en vez de galería genérica) -->
+    <!-- RED MODELADA: viaje de ejemplo animado -->
     <section class="network-section">
       <div class="block-head">
         <h2>Red modelada</h2>
         <span class="mono-pill">10 LÍNEAS · 26 ESTACIONES</span>
       </div>
 
-      <div class="network-canvas" aria-hidden="true">
-        <svg viewBox="0 0 760 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="lineRoja" x1="0" y1="0" x2="760" y2="0" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#ef4444" />
-              <stop offset="100%" stop-color="#f97316" />
-            </linearGradient>
-            <linearGradient id="lineAmarilla" x1="0" y1="0" x2="760" y2="0" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#eab308" />
-              <stop offset="100%" stop-color="#facc15" />
-            </linearGradient>
-            <linearGradient id="lineVerde" x1="0" y1="0" x2="760" y2="0" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#22c55e" />
-              <stop offset="100%" stop-color="#4ade80" />
-            </linearGradient>
-            <linearGradient id="lineAzul" x1="0" y1="0" x2="760" y2="0" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#3b82f6" />
-              <stop offset="100%" stop-color="#38bdf8" />
-            </linearGradient>
-            <linearGradient id="lineMorada" x1="0" y1="0" x2="760" y2="0" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#a855f7" />
-              <stop offset="100%" stop-color="#c084fc" />
-            </linearGradient>
-          </defs>
+      <div class="network-canvas" role="img" aria-label="Animación de un viaje de ejemplo de Centro a UCB combinando caminata, teleférico y minibús">
+        <svg viewBox="0 0 1000 250" fill="none" xmlns="http://www.w3.org/2000/svg">
 
-          <!-- Línea Roja: Ceja → Centro → Zona Sur -->
-          <path d="M60 90 L200 70 L340 130 L480 150 L640 180" stroke="url(#lineRoja)" stroke-width="4" stroke-linecap="round" />
+          <!-- Encabezado del ejemplo -->
+          <text class="net-title" x="20" y="30">EJEMPLO · CENTRO → UCB</text>
+          <text class="net-total" x="980" y="30" text-anchor="end">TOTAL 48 MIN</text>
 
-          <!-- Línea Amarilla: cruce horizontal -->
-          <path d="M100 200 L260 180 L420 200 L620 220" stroke="url(#lineAmarilla)" stroke-width="4" stroke-linecap="round" />
+          <!-- ===== TRAMOS ===== -->
+          <!-- 1. Caminata -->
+          <line class="net-walk" x1="90" y1="170" x2="260" y2="170" />
+          <!-- 2. Teleférico Morada -->
+          <line class="net-cable" x1="260" y1="170" x2="430" y2="170" stroke="#9333ea" />
+          <!-- 3. Teleférico Plateada -->
+          <line class="net-cable" x1="430" y1="170" x2="600" y2="170" stroke="#94a3b8" />
+          <!-- 4. Teleférico Amarilla -->
+          <line class="net-cable" x1="600" y1="170" x2="770" y2="170" stroke="#eab308" />
+          <!-- 5. Minibús -->
+          <line class="net-road" x1="770" y1="170" x2="920" y2="170" />
 
-          <!-- Línea Verde: hacia UCB / Obrajes -->
-          <path d="M340 130 L420 230 L560 260" stroke="url(#lineVerde)" stroke-width="4" stroke-linecap="round" />
+          <!-- ===== MINUTOS POR TRAMO ===== -->
+          <text class="net-mode" x="175" y="100" text-anchor="middle">A PIE</text>
+          <rect class="net-pill" x="137" y="108" width="76" height="24" rx="12" />
+          <text class="net-pill-text" x="175" y="124.5" text-anchor="middle">12 min</text>
 
-          <!-- Línea Azul: conexión al Alto -->
-          <path d="M200 70 L160 40 L100 60" stroke="url(#lineAzul)" stroke-width="4" stroke-linecap="round" />
+          <text class="net-mode" x="345" y="100" text-anchor="middle" fill="#9333ea">MORADA</text>
+          <rect class="net-pill" x="307" y="108" width="76" height="24" rx="12" />
+          <text class="net-pill-text" x="345" y="124.5" text-anchor="middle">8 min</text>
 
-          <!-- Línea Morada: ramal centro -->
-          <path d="M340 130 L360 250 L500 270" stroke="url(#lineMorada)" stroke-width="4" stroke-linecap="round" stroke-dasharray="6 6" opacity="0.85" />
+          <text class="net-mode" x="515" y="100" text-anchor="middle" fill="#94a3b8">PLATEADA</text>
+          <rect class="net-pill" x="477" y="108" width="76" height="24" rx="12" />
+          <text class="net-pill-text" x="515" y="124.5" text-anchor="middle">6 min</text>
 
-          <!-- Estaciones (círculos) -->
-          <!-- Roja -->
-          <circle cx="60" cy="90" r="9" fill="#0f0a1a" stroke="#ef4444" stroke-width="3" />
-          <text x="60" y="70" fill="#ef4444" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">CEJA</text>
+          <text class="net-mode" x="685" y="100" text-anchor="middle" fill="#eab308">AMARILLA</text>
+          <rect class="net-pill" x="647" y="108" width="76" height="24" rx="12" />
+          <text class="net-pill-text" x="685" y="124.5" text-anchor="middle">17 min</text>
 
-          <circle cx="200" cy="70" r="9" fill="#0f0a1a" stroke="#ef4444" stroke-width="3" />
-          <text x="200" y="50" fill="#ef4444" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">16 DE JULIO</text>
+          <text class="net-mode" x="845" y="100" text-anchor="middle" fill="#f59e0b">MINIBÚS</text>
+          <rect class="net-pill" x="807" y="108" width="76" height="24" rx="12" />
+          <text class="net-pill-text" x="845" y="124.5" text-anchor="middle">5 min</text>
+          <text class="net-sub" x="845" y="146" text-anchor="middle">pico: 8 min</text>
+          <text class="net-sub" x="845" y="157" text-anchor="middle">paro: no circula</text>
 
-          <circle cx="340" cy="130" r="11" fill="#0f0a1a" stroke="#a855f7" stroke-width="3" />
-          <text x="340" y="112" fill="#c084fc" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">CENTRAL</text>
+          <!-- ===== NODOS ===== -->
+          <!-- Centro (punto extra, cuadrado) -->
+          <rect class="net-node" x="81" y="161" width="18" height="18" rx="4" />
+          <text class="net-name" x="90" y="214" text-anchor="middle">Centro</text>
+          <text class="net-time" x="90" y="230" text-anchor="middle">min 0</text>
 
-          <circle cx="480" cy="150" r="9" fill="#0f0a1a" stroke="#ef4444" stroke-width="3" />
-          <text x="480" y="132" fill="#ef4444" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">MIRAFLORES</text>
+          <circle class="net-node" cx="260" cy="170" r="9" />
+          <text class="net-name" x="260" y="214" text-anchor="middle">Obelisco</text>
+          <text class="net-time" x="260" y="230" text-anchor="middle">min 12</text>
 
-          <circle cx="640" cy="180" r="9" fill="#0f0a1a" stroke="#f97316" stroke-width="3" />
-          <text x="640" y="162" fill="#f97316" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">CALACOTO</text>
+          <circle class="net-node" cx="430" cy="170" r="9" />
+          <text class="net-name" x="430" y="214" text-anchor="middle">Faro Murillo</text>
+          <text class="net-time" x="430" y="230" text-anchor="middle">min 20</text>
 
-          <!-- Amarilla -->
-          <circle cx="100" cy="200" r="9" fill="#0f0a1a" stroke="#eab308" stroke-width="3" />
-          <text x="100" y="222" fill="#eab308" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">LIBERTADOR</text>
+          <circle class="net-node" cx="600" cy="170" r="9" />
+          <text class="net-name" x="600" y="214" text-anchor="middle">Mirador</text>
+          <text class="net-time" x="600" y="230" text-anchor="middle">min 26</text>
 
-          <circle cx="260" cy="180" r="9" fill="#0f0a1a" stroke="#eab308" stroke-width="3" />
-          <text x="260" y="200" fill="#eab308" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">OBELISCO</text>
+          <circle class="net-node" cx="770" cy="170" r="9" />
+          <text class="net-name" x="770" y="214" text-anchor="middle">Libertador</text>
+          <text class="net-time" x="770" y="230" text-anchor="middle">min 43</text>
 
-          <circle cx="420" cy="200" r="9" fill="#0f0a1a" stroke="#eab308" stroke-width="3" />
-          <text x="420" y="220" fill="#eab308" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">SAN JORGE</text>
+          <!-- UCB (punto extra, cuadrado) con pulso al llegar -->
+          <rect class="net-node net-node--dest" x="911" y="161" width="18" height="18" rx="4" />
+          <circle class="net-pulse" cx="920" cy="170" r="12">
+            <animate attributeName="r" values="12;12;26;12" keyTimes="0;0.88;0.95;1" dur="13s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0;0;0.6;0;0" keyTimes="0;0.88;0.9;0.97;1" dur="13s" repeatCount="indefinite" />
+          </circle>
+          <text class="net-name" x="920" y="214" text-anchor="middle">UCB</text>
+          <text class="net-time" x="920" y="230" text-anchor="middle">min 48</text>
 
-          <circle cx="620" cy="220" r="9" fill="#0f0a1a" stroke="#eab308" stroke-width="3" />
-          <text x="620" y="240" fill="#eab308" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">IRPAVI</text>
+          <!-- ===== PERSONA CAMINANDO (Centro → Obelisco) ===== -->
+          <g>
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              values="90,158;260,158;260,158"
+              keyTimes="0;0.1846;1"
+              dur="13s"
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="opacity"
+              values="0;1;1;0;0"
+              keyTimes="0;0.03;0.1846;0.2154;1"
+              dur="13s"
+              repeatCount="indefinite"
+            />
+            <circle class="icon-fill" cx="0" cy="-12" r="3.5" />
+            <path class="icon-line" d="M0 -7 L0 4" />
+            <path class="icon-line" d="M0 -4 L-5 2 M0 -4 L5 2">
+              <animate
+                attributeName="d"
+                dur="0.5s"
+                repeatCount="indefinite"
+                values="M0 -4 L-5 2 M0 -4 L5 2;M0 -4 L0 3 M0 -4 L0 3;M0 -4 L5 2 M0 -4 L-5 2;M0 -4 L0 3 M0 -4 L0 3;M0 -4 L-5 2 M0 -4 L5 2"
+              />
+            </path>
+            <path class="icon-line" d="M0 4 L-4 12 M0 4 L4 12">
+              <animate
+                attributeName="d"
+                dur="0.5s"
+                repeatCount="indefinite"
+                values="M0 4 L-4 12 M0 4 L4 12;M0 4 L0 12 M0 4 L0 12;M0 4 L4 12 M0 4 L-4 12;M0 4 L0 12 M0 4 L0 12;M0 4 L-4 12 M0 4 L4 12"
+              />
+            </path>
+          </g>
 
-          <!-- Verde -->
-          <circle cx="560" cy="260" r="9" fill="#0f0a1a" stroke="#22c55e" stroke-width="3" />
-          <text x="560" y="280" fill="#4ade80" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">UCB OBRAJES</text>
+          <!-- ===== CABINA DE TELEFÉRICO (Obelisco → Libertador, con paradas) ===== -->
+          <g>
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              values="260,170;260,170;430,170;430,170;600,170;600,170;770,170;770,170"
+              keyTimes="0;0.2154;0.3538;0.3846;0.5077;0.5385;0.7385;1"
+              dur="13s"
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="opacity"
+              values="0;0;1;1;0;0"
+              keyTimes="0;0.2;0.2154;0.7385;0.7615;1"
+              dur="13s"
+              repeatCount="indefinite"
+            />
+            <line class="icon-stroke" x1="0" y1="0" x2="0" y2="9" />
+            <circle class="icon-wheel" cx="0" cy="0" r="3" />
+            <rect class="icon-stroke" x="-15" y="9" width="30" height="20" rx="5" fill="#9333ea">
+              <animate
+                attributeName="fill"
+                calcMode="discrete"
+                values="#9333ea;#9333ea;#94a3b8;#94a3b8;#eab308;#eab308"
+                keyTimes="0;0.3538;0.3846;0.5077;0.5385;1"
+                dur="13s"
+                repeatCount="indefinite"
+              />
+            </rect>
+            <rect class="icon-window" x="-11" y="13" width="7" height="7" rx="1.5" />
+            <rect class="icon-window" x="4" y="13" width="7" height="7" rx="1.5" />
+          </g>
 
-          <!-- Azul -->
-          <circle cx="100" cy="60" r="9" fill="#0f0a1a" stroke="#3b82f6" stroke-width="3" />
-          <text x="100" y="42" fill="#3b82f6" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">EL ALTO</text>
-
-          <!-- Morada -->
-          <circle cx="360" cy="250" r="9" fill="#0f0a1a" stroke="#a855f7" stroke-width="3" />
-          <text x="360" y="270" fill="#c084fc" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">PERIFÉRICA</text>
-
-          <circle cx="500" cy="270" r="9" fill="#0f0a1a" stroke="#a855f7" stroke-width="3" />
-          <text x="500" y="290" fill="#c084fc" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" text-anchor="middle">ALTO OBRAJES</text>
-
-          <!-- Leyenda -->
-          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#b5b0c4">
-            <line x1="20" y1="285" x2="40" y2="285" stroke="url(#lineRoja)" stroke-width="3" stroke-linecap="round" />
-            <text x="46" y="288">Roja</text>
-            <line x1="90" y1="285" x2="110" y2="285" stroke="url(#lineAmarilla)" stroke-width="3" stroke-linecap="round" />
-            <text x="116" y="288">Amarilla</text>
-            <line x1="170" y1="285" x2="190" y2="285" stroke="url(#lineVerde)" stroke-width="3" stroke-linecap="round" />
-            <text x="196" y="288">Verde</text>
-            <line x1="240" y1="285" x2="260" y2="285" stroke="url(#lineAzul)" stroke-width="3" stroke-linecap="round" />
-            <text x="266" y="288">Azul</text>
-            <line x1="300" y1="285" x2="320" y2="285" stroke="url(#lineMorada)" stroke-width="3" stroke-linecap="round" />
-            <text x="326" y="288">Morada</text>
+          <!-- ===== MINIBÚS (Libertador → UCB) ===== -->
+          <g>
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              values="770,163;770,163;920,163;920,163"
+              keyTimes="0;0.7615;0.8846;1"
+              dur="13s"
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="opacity"
+              values="0;0;1;1;0;0"
+              keyTimes="0;0.7462;0.7615;0.8846;0.9077;1"
+              dur="13s"
+              repeatCount="indefinite"
+            />
+            <rect class="icon-stroke" x="-17" y="-14" width="34" height="17" rx="4" fill="#f59e0b" />
+            <rect class="icon-window" x="-14" y="-11" width="7" height="5" rx="1" />
+            <rect class="icon-window" x="-5.5" y="-11" width="7" height="5" rx="1" />
+            <rect class="icon-window" x="3" y="-11" width="7" height="5" rx="1" />
+            <circle class="icon-wheel" cx="-9" cy="4" r="3.3" />
+            <circle class="icon-wheel" cx="9" cy="4" r="3.3" />
           </g>
         </svg>
       </div>
 
+      <ul class="net-legend" aria-hidden="true">
+        <li><i class="lg lg-cable"></i>Teleférico</li>
+        <li><i class="lg lg-walk"></i>Caminata</li>
+        <li><i class="lg lg-bus"></i>Minibús</li>
+        <li><i class="lg lg-point"></i>Punto de la ciudad</li>
+      </ul>
+
       <p class="network-note">
-        Las 10 líneas de Mi Teleférico conectan El Alto, la Ceja, el Centro y la Zona Sur
-        con 26 estaciones. El simulador modela una versión simplificada de esta red
-        ponderando cada tramo en minutos.
+        Ejemplo ilustrativo en escenario normal y sin contar las filas: el viaje combina una
+        caminata, tres tramos de teleférico y un minibús. Las 10 líneas de Mi Teleférico conectan
+        El Alto, la Ceja, el Centro y la Zona Sur con 26 estaciones, y el simulador pondera cada
+        tramo en minutos según el escenario activo.
       </p>
     </section>
 
@@ -232,15 +319,6 @@ const imagenes = {
         <li><strong>Comparación entre escenarios</strong> sobre el mismo par origen–destino.</li>
       </ul>
     </section>
-
-    <div class="cta-section">
-      <RouterLink class="cta-button" to="/aplicacion/simulador">
-        <span>Abrir simulador interactivo</span>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-          <path d="M5 12h14M13 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </RouterLink>
-    </div>
 
   </section>
 </template>
@@ -307,6 +385,43 @@ const imagenes = {
   border-radius: 4px;
   background: var(--accent-soft-bg);
   color: var(--accent-green);
+}
+
+/* ============ CTA (arriba, debajo del título) ============ */
+.cta-section {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: calc(clamp(36px, 5vw, 60px) * -0.4);
+}
+
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent-solid);
+  color: #ffffff !important;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  text-decoration: none !important;
+  transition: transform 160ms ease, filter 160ms ease;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.cta-button svg {
+  transition: transform 200ms ease;
+}
+
+.cta-button:hover svg {
+  transform: translateX(3px);
 }
 
 /* ============ HERO MEDIA ============ */
@@ -450,7 +565,7 @@ const imagenes = {
   display: block;
 }
 
-/* ============ RED MODELADA (SVG esquemático) ============ */
+/* ============ RED MODELADA (viaje animado) ============ */
 .network-section {
   display: flex;
   flex-direction: column;
@@ -476,6 +591,179 @@ const imagenes = {
   color: var(--text-secondary);
   max-width: 72ch;
   margin: 0;
+}
+
+/* Tramos */
+.net-cable {
+  stroke-width: 5;
+  stroke-linecap: round;
+  fill: none;
+}
+
+.net-walk {
+  stroke: var(--text-secondary);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1 9;
+  fill: none;
+}
+
+.net-road {
+  stroke: #f59e0b;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 12 8;
+  fill: none;
+}
+
+/* Nodos */
+.net-node {
+  fill: var(--bg-surface);
+  stroke: var(--text-primary);
+  stroke-width: 3;
+}
+
+.net-node--dest {
+  stroke: #34d399;
+}
+
+.net-pulse {
+  fill: none;
+  stroke: #34d399;
+  stroke-width: 2;
+}
+
+/* Textos */
+.net-title {
+  fill: var(--text-secondary);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.net-total {
+  fill: var(--accent-green);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.net-mode {
+  fill: var(--text-secondary);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.net-pill {
+  fill: var(--bg-surface-2);
+  stroke: var(--border-color);
+  stroke-width: 1;
+}
+
+.net-pill-text {
+  fill: var(--text-primary);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.net-sub {
+  fill: var(--text-secondary);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  opacity: 0.85;
+}
+
+.net-name {
+  fill: var(--text-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.net-time {
+  fill: var(--text-secondary);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+}
+
+/* Íconos animados */
+.icon-stroke {
+  stroke: var(--text-primary);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.icon-window {
+  fill: var(--bg-surface);
+}
+
+.icon-wheel {
+  fill: var(--text-primary);
+}
+
+.icon-fill {
+  fill: var(--text-primary);
+}
+
+.icon-line {
+  fill: none;
+  stroke: var(--text-primary);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Leyenda */
+.net-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding: 0;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.net-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lg {
+  display: inline-block;
+}
+
+.lg-cable {
+  width: 22px;
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #9333ea, #94a3b8, #eab308);
+}
+
+.lg-walk {
+  width: 22px;
+  height: 0;
+  border-top: 3px dotted var(--text-secondary);
+}
+
+.lg-bus {
+  width: 22px;
+  height: 0;
+  border-top: 4px dashed #f59e0b;
+}
+
+.lg-point {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--text-secondary);
+  border-radius: 3px;
+  background: var(--bg-surface-2);
 }
 
 /* ============ PREVIEW ============ */
@@ -509,43 +797,6 @@ const imagenes = {
   font-weight: 700;
 }
 
-/* ============ CTA ============ */
-.cta-section {
-  display: flex;
-  justify-content: center;
-  padding: clamp(16px, 3vw, 28px) 0;
-}
-
-.cta-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 32px;
-  border: none;
-  border-radius: 10px;
-  background: var(--accent-solid);
-  color: #ffffff !important;
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  cursor: pointer;
-  text-decoration: none !important;
-  transition: transform 160ms ease, filter 160ms ease;
-}
-
-.cta-button:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.08);
-}
-
-.cta-button svg {
-  transition: transform 200ms ease;
-}
-
-.cta-button:hover svg {
-  transform: translateX(3px);
-}
-
 /* ============ RESPONSIVE ============ */
 @media (max-width: 900px) {
   .flow-grid {
@@ -572,7 +823,7 @@ const imagenes = {
   }
 
   .network-canvas svg {
-    min-width: 620px;
+    min-width: 720px;
   }
 }
 </style>

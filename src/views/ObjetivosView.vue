@@ -3,7 +3,7 @@ const specificObjectives = [
   {
     code: 'OBJ · 01',
     title: 'Modelar la red urbana como grafo',
-    tag: 'redLaPaz.json',
+    tag: 'Red de transporte',
     accent: '#9b72e8',
     text: 'Representar las 26 estaciones del teleférico (10 líneas) y los 6 puntos clave de La Paz junto con sus conexiones disponibles.',
   },

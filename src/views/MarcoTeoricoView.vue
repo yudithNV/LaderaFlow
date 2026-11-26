@@ -570,8 +570,8 @@ const references = [
         </p>
         <p class="small">
           En este proyecto, <strong>V</strong> son los puntos/estaciones y <strong>E</strong>
-          las conexiones en <code>redLaPaz.json</code>; para 32 nodos el cálculo es
-          prácticamente instantáneo en el navegador.
+          las conexiones de la red modelada; el cálculo es prácticamente instantáneo en el
+          navegador.
         </p>
       </article>
     </div>
