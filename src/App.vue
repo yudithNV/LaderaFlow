@@ -9,6 +9,7 @@ const year = new Date().getFullYear()
 
 // El simulador se muestra a pantalla completa, sin navbar ni footer
 const esSimulador = computed(() => route.name === 'simulador')
+const esIntroduccion = computed(() => route.name === 'introduccion')
 </script>
 
 <template>
@@ -17,7 +18,7 @@ const esSimulador = computed(() => route.name === 'simulador')
   <div class="app-layout">
     <Navbar v-if="!esSimulador" />
 
-    <main :class="['page-shell', { 'page-shell--fullscreen': esSimulador }]">
+    <main :class="['page-shell', { 'page-shell--fullscreen': esSimulador, 'page-shell--intro': esIntroduccion }]">
       <RouterView />
     </main>
 
@@ -32,6 +33,13 @@ const esSimulador = computed(() => route.name === 'simulador')
 </template>
 
 <style scoped>
+.page-shell.page-shell--intro {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
 .page-shell.page-shell--fullscreen {
   width: 100%;
   max-width: none;
@@ -40,4 +48,5 @@ const esSimulador = computed(() => route.name === 'simulador')
   box-sizing: border-box;
   min-height: 100vh;
 }
+
 </style>

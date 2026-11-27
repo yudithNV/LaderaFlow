@@ -1,5 +1,10 @@
 <script setup>
 import capturaSistema from '../assets/captura-sistema.png' // ajusta la ruta según dónde esté tu componente
+import redLaPaz from '../data/redLaPaz.json'
+import HeroTeleferico from '../components/HeroTeleferico.vue'
+
+const lineasTeleferico = redLaPaz.lineas
+
 const transportModes = [
   {
     code: 'TLF',
@@ -31,10 +36,12 @@ const stats = [
 
     <!-- 1. HERO EDITORIAL -->
     <div class="hero">
-      <div class="hero-copy">
-        <div class="kicker-row">
-          <span class="kicker-line"></span>
-          <span class="kicker-text">GRAFOS · DIJKSTRA · LA PAZ</span>
+      <HeroTeleferico :lineas="lineasTeleferico" />
+
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          GRAFOS · DIJKSTRA · LA PAZ
         </div>
 
         <h1>
@@ -51,7 +58,7 @@ const stats = [
         <div class="hero-cta-group">
           <RouterLink class="action-main" to="/aplicacion">
             <span>Explorar mapa interactivo</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
               <path d="M5 12h14M13 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </RouterLink>
@@ -62,61 +69,12 @@ const stats = [
         </div>
       </div>
 
-      <div class="hero-diagram" aria-hidden="true">
-        <svg viewBox="0 0 380 290" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="mountainFill" x1="190" y1="70" x2="190" y2="270" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#9b72e8" stop-opacity="0.14" />
-              <stop offset="100%" stop-color="#9b72e8" stop-opacity="0" />
-            </linearGradient>
-            <linearGradient id="cableStroke" x1="48" y1="68" x2="332" y2="176" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#ec4899" />
-              <stop offset="55%" stop-color="#9b72e8" />
-              <stop offset="100%" stop-color="#22c55e" />
-            </linearGradient>
-          </defs>
-
-          <g stroke="currentColor" stroke-opacity="0.06" stroke-width="1">
-            <line x1="20" y1="60" x2="360" y2="60" />
-            <line x1="20" y1="120" x2="360" y2="120" />
-            <line x1="20" y1="180" x2="360" y2="180" />
-            <line x1="20" y1="240" x2="360" y2="240" />
-            <line x1="90" y1="25" x2="90" y2="265" />
-            <line x1="190" y1="25" x2="190" y2="265" />
-            <line x1="290" y1="25" x2="290" y2="265" />
-          </g>
-
-          <path d="M24 98 L98 104 L168 188 L244 206 L356 218 L356 265 L24 265 Z" fill="url(#mountainFill)" />
-          <path d="M24 98 L98 104 L168 188 L244 206 L356 218" stroke="#9b72e8" stroke-opacity="0.3" stroke-width="1.5" />
-          <path d="M54 96 C92 145, 118 195, 174 196 C225 197, 255 224, 326 216" stroke="#ec4899" stroke-opacity="0.45" stroke-width="2" stroke-dasharray="5 5" />
-          <path d="M54 74 L184 128 L326 184" stroke="url(#cableStroke)" stroke-width="3" stroke-linecap="round" />
-
-          <line x1="54" y1="74" x2="54" y2="98" stroke="#ec4899" stroke-width="2" />
-          <line x1="184" y1="128" x2="184" y2="192" stroke="#9b72e8" stroke-width="2" />
-          <line x1="326" y1="184" x2="326" y2="216" stroke="#22c55e" stroke-width="2" />
-
-          <g class="cabin-float">
-            <rect x="111" y="92" width="16" height="11" rx="3" fill="#1a1825" stroke="#f472b6" stroke-width="1.8" />
-            <line x1="119" y1="86" x2="119" y2="92" stroke="#f472b6" stroke-width="1.5" />
-          </g>
-
-          <circle cx="54" cy="74" r="6" fill="#ec4899" />
-          <circle cx="54" cy="74" r="11" stroke="#ec4899" stroke-opacity="0.3" stroke-width="1.5" />
-          <circle cx="184" cy="128" r="5.5" fill="#9b72e8" />
-          <circle cx="326" cy="184" r="6" fill="#22c55e" />
-          <circle cx="326" cy="184" r="11" stroke="#22c55e" stroke-opacity="0.3" stroke-width="1.5" />
-
-          <g font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700">
-            <rect x="34" y="42" width="76" height="20" rx="5" fill="#ec4899" fill-opacity="0.12" />
-            <text x="42" y="55" fill="#f472b6">CEJA · 4090m</text>
-            <rect x="150" y="102" width="68" height="20" rx="5" fill="#9b72e8" fill-opacity="0.14" />
-            <text x="161" y="115" fill="#c4b5fd">CENTRO</text>
-            <rect x="272" y="152" width="84" height="20" rx="5" fill="#22c55e" fill-opacity="0.12" />
-            <text x="280" y="165" fill="#4ade80">UCB OBRAJES</text>
-            <text x="138" y="246" fill="#ec4899" fill-opacity="0.75">Minibús: +tráfico / paro</text>
-          </g>
-        </svg>
-      </div>
+      <ul class="hero-lines" aria-label="Líneas de teleférico modeladas">
+        <li v-for="linea in lineasTeleferico" :key="linea.id" class="hero-line-chip">
+          <span class="hero-line-dot" :style="{ backgroundColor: linea.color }"></span>
+          {{ linea.nombre }}
+        </li>
+      </ul>
     </div>
 
     <!-- 2. NUEVO: PANEL DE ESTADÍSTICAS IMPONENTE -->
@@ -241,6 +199,7 @@ section.view.intro-layout {
   display: flex;
   flex-direction: column;
   gap: clamp(48px, 6vw, 80px);
+  width: 100%;
   padding: 0;
   margin: 0;
   border: none;
@@ -250,71 +209,127 @@ section.view.intro-layout {
   outline: none;
 }
 
+.intro-layout > :not(.hero) {
+  width: min(1120px, calc(100% - 40px));
+  align-self: center;
+}
+
 /* ============ HERO ============ */
 .hero {
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  align-items: center;
-  gap: clamp(28px, 4vw, 56px);
-  padding: 0;
-  margin: 0;
-  border: none;
-  background: transparent;
-}
+  --hero-text: #f8fafc;
+  --hero-subtext: #e2e8f0;
+  --hero-border: rgba(255, 255, 255, 0.16);
+  --hero-pill: rgba(9, 13, 26, 0.65);
 
-.hero > *, .hero-copy, .hero-diagram {
-  border: none;
-  background: transparent;
-}
-
-.kicker-row {
+  position: relative;
+  isolation: isolate;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 18px;
+  justify-content: center;
+  gap: clamp(22px, 4vh, 36px);
+  width: 100%;
+  min-height: calc(100vh - 72px);
+  min-height: max(620px, calc(100svh - 72px));
+  margin: 0;
+  padding: clamp(76px, 11vh, 112px) 24px clamp(42px, 7vh, 72px);
+  overflow: hidden;
+  border: none;
+  background: transparent;
 }
 
-.kicker-line {
-  width: 26px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent-pink), var(--accent-green));
+:root[data-theme="light"] .hero {
+  --hero-text: #0f172a;
+  --hero-subtext: #1e293b;
+  --hero-border: rgba(15, 23, 42, 0.16);
+  --hero-pill: rgba(255, 255, 255, 0.78);
 }
 
-.kicker-text {
+.hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 860px;
+  text-align: center;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 22px;
+  padding: 7px 14px;
+  border: 1px solid var(--hero-border);
+  border-radius: 999px;
+  background: var(--hero-pill);
+  color: var(--hero-subtext);
   font-family: "JetBrains Mono", monospace;
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--accent-solid);
+  letter-spacing: 0.1em;
+  backdrop-filter: blur(10px);
 }
 
-.hero-copy h1 {
-  font-size: clamp(2.3rem, 4.6vw, 3.6rem);
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 10px #22c55e;
+}
+
+.hero-content h1 {
+  color: var(--hero-text);
+  font-size: clamp(2.6rem, 5.5vw, 4.4rem);
   line-height: 1.02;
-  letter-spacing: -0.035em;
-  margin: 0 0 20px;
+  letter-spacing: -0.03em;
+  margin: 0 0 22px;
   font-weight: 800;
+  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="light"] .hero-content h1 {
+  text-shadow: 0 4px 24px rgba(255, 255, 255, 0.95);
 }
 
 .title-highlight {
-  background: linear-gradient(95deg, var(--accent-solid), var(--accent-pink) 55%, var(--accent-green));
+  background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 50%, #c084fc 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.lead {
-  font-size: clamp(0.98rem, 1.15vw, 1.08rem);
+:root[data-theme="light"] .title-highlight {
+  background: linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-content .lead {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--hero-subtext);
+  font-size: clamp(1.05rem, 1.8vw, 1.2rem);
   line-height: 1.65;
-  max-width: 54ch;
-  margin-bottom: 0;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.65);
+}
+
+:root[data-theme="light"] .hero-content .lead {
+  text-shadow: 0 2px 16px rgba(255, 255, 255, 0.95);
 }
 
 .hero-cta-group {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 14px;
-  margin-top: 28px;
+  margin-top: 30px;
+  margin-bottom: 0;
 }
 
 .action-main {
@@ -339,8 +354,8 @@ section.view.intro-layout {
   padding: 12px 4px;
   font-weight: 600;
   font-size: 0.92rem;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-color);
+  color: var(--hero-text);
+  border-bottom: 1px solid var(--hero-border);
   transition: border-color 160ms ease, color 160ms ease;
 }
 
@@ -349,19 +364,41 @@ section.view.intro-layout {
   color: var(--accent-solid);
 }
 
-.hero-diagram svg {
-  width: 100%;
-  height: auto;
-  display: block;
+.hero-lines {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 920px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--hero-border);
+  border-radius: 16px;
+  background: var(--hero-pill);
+  list-style: none;
+  backdrop-filter: blur(12px);
 }
 
-.cabin-float {
-  animation: cabinMove 4s ease-in-out infinite alternate;
+.hero-line-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.1);
+  color: var(--hero-subtext);
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
-@keyframes cabinMove {
-  from { transform: translate(-18px, -7px); }
-  to { transform: translate(34px, 14px); }
+.hero-line-dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(15, 23, 42, 0.25);
+  border-radius: 50%;
 }
 
 /* ============ NUEVO: PANEL DE ESTADÍSTICAS ============ */
@@ -649,13 +686,14 @@ section.view.intro-layout {
 /* ============ RESPONSIVE ============ */
 @media (max-width: 920px) {
   .hero {
-    grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 28px;
+    padding-inline: 20px;
   }
-  .hero-diagram {
-    max-width: 480px;
-    margin: 0 auto;
-    width: 100%;
+  .hero-content {
+    max-width: 780px;
+  }
+  .hero-lines {
+    max-width: 760px;
   }
   .stats-panel {
     grid-template-columns: repeat(2, 1fr);
@@ -687,6 +725,48 @@ section.view.intro-layout {
   .showcase-row {
     grid-template-columns: 1fr;
     gap: 28px;
+  }
+}
+
+@media (max-width: 980px) {
+  .hero {
+    min-height: calc(100vh - 64px);
+    min-height: max(620px, calc(100svh - 64px));
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    min-height: max(580px, calc(100svh - 64px));
+    padding: 82px 18px 34px;
+    gap: 24px;
+  }
+
+  .intro-layout > :not(.hero) {
+    width: calc(100% - 32px);
+  }
+
+  .hero-badge {
+    margin-bottom: 16px;
+    font-size: 0.64rem;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(2.35rem, 10.5vw, 3.2rem);
+  }
+
+  .hero-content .lead {
+    font-size: 1rem;
+  }
+
+  .hero-lines {
+    gap: 5px;
+    padding: 8px;
+  }
+
+  .hero-line-chip {
+    padding: 5px 8px;
+    font-size: 0.68rem;
   }
 }
 </style>
