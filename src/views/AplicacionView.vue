@@ -124,36 +124,34 @@ const imagenes = {
 
           <!-- Encabezado del ejemplo -->
           <text class="net-title" x="20" y="30">EJEMPLO · CENTRO → UCB</text>
-          <text class="net-total" x="980" y="30" text-anchor="end">TOTAL 48 MIN</text>
+          <text class="net-total" x="980" y="30" text-anchor="end">TOTAL 24 MIN</text>
 
           <!-- ===== TRAMOS ===== -->
           <!-- 1. Caminata -->
           <line class="net-walk" x1="90" y1="170" x2="260" y2="170" />
-          <!-- 2. Teleférico Morada -->
-          <line class="net-cable" x1="260" y1="170" x2="430" y2="170" stroke="#9333ea" />
-          <!-- 3. Teleférico Plateada -->
-          <line class="net-cable" x1="430" y1="170" x2="600" y2="170" stroke="#94a3b8" />
-          <!-- 4. Teleférico Amarilla -->
-          <line class="net-cable" x1="600" y1="170" x2="770" y2="170" stroke="#eab308" />
-          <!-- 5. Minibús -->
+          <!-- 2. Línea Celeste: Del Prado → Del Teatro → Del Poeta → Libertador -->
+          <line class="net-cable" x1="260" y1="170" x2="430" y2="170" stroke="#38bdf8" />
+          <line class="net-cable" x1="430" y1="170" x2="600" y2="170" stroke="#38bdf8" />
+          <line class="net-cable" x1="600" y1="170" x2="770" y2="170" stroke="#38bdf8" />
+          <!-- 3. Minibús -->
           <line class="net-road" x1="770" y1="170" x2="920" y2="170" />
 
           <!-- ===== MINUTOS POR TRAMO ===== -->
           <text class="net-mode" x="175" y="100" text-anchor="middle">A PIE</text>
           <rect class="net-pill" x="137" y="108" width="76" height="24" rx="12" />
-          <text class="net-pill-text" x="175" y="124.5" text-anchor="middle">12 min</text>
+          <text class="net-pill-text" x="175" y="124.5" text-anchor="middle">6 min</text>
 
-          <text class="net-mode" x="345" y="100" text-anchor="middle" fill="#9333ea">MORADA</text>
+          <text class="net-mode" x="345" y="100" text-anchor="middle" fill="#38bdf8">CELESTE</text>
           <rect class="net-pill" x="307" y="108" width="76" height="24" rx="12" />
-          <text class="net-pill-text" x="345" y="124.5" text-anchor="middle">8 min</text>
+          <text class="net-pill-text" x="345" y="124.5" text-anchor="middle">3 min</text>
 
-          <text class="net-mode" x="515" y="100" text-anchor="middle" fill="#94a3b8">PLATEADA</text>
+          <text class="net-mode" x="515" y="100" text-anchor="middle" fill="#38bdf8">CELESTE</text>
           <rect class="net-pill" x="477" y="108" width="76" height="24" rx="12" />
-          <text class="net-pill-text" x="515" y="124.5" text-anchor="middle">6 min</text>
+          <text class="net-pill-text" x="515" y="124.5" text-anchor="middle">3 min</text>
 
-          <text class="net-mode" x="685" y="100" text-anchor="middle" fill="#eab308">AMARILLA</text>
+          <text class="net-mode" x="685" y="100" text-anchor="middle" fill="#38bdf8">CELESTE</text>
           <rect class="net-pill" x="647" y="108" width="76" height="24" rx="12" />
-          <text class="net-pill-text" x="685" y="124.5" text-anchor="middle">17 min</text>
+          <text class="net-pill-text" x="685" y="124.5" text-anchor="middle">4 min</text>
 
           <text class="net-mode" x="845" y="100" text-anchor="middle" fill="#f59e0b">MINIBÚS</text>
           <rect class="net-pill" x="807" y="108" width="76" height="24" rx="12" />
@@ -168,20 +166,20 @@ const imagenes = {
           <text class="net-time" x="90" y="230" text-anchor="middle">min 0</text>
 
           <circle class="net-node" cx="260" cy="170" r="9" />
-          <text class="net-name" x="260" y="214" text-anchor="middle">Obelisco</text>
-          <text class="net-time" x="260" y="230" text-anchor="middle">min 12</text>
+          <text class="net-name" x="260" y="214" text-anchor="middle">Del Prado</text>
+          <text class="net-time" x="260" y="230" text-anchor="middle">min 6</text>
 
           <circle class="net-node" cx="430" cy="170" r="9" />
-          <text class="net-name" x="430" y="214" text-anchor="middle">Faro Murillo</text>
-          <text class="net-time" x="430" y="230" text-anchor="middle">min 20</text>
+          <text class="net-name" x="430" y="214" text-anchor="middle">Del Teatro</text>
+          <text class="net-time" x="430" y="230" text-anchor="middle">min 12</text>
 
           <circle class="net-node" cx="600" cy="170" r="9" />
-          <text class="net-name" x="600" y="214" text-anchor="middle">Mirador</text>
-          <text class="net-time" x="600" y="230" text-anchor="middle">min 26</text>
+          <text class="net-name" x="600" y="214" text-anchor="middle">Del Poeta</text>
+          <text class="net-time" x="600" y="230" text-anchor="middle">min 15</text>
 
           <circle class="net-node" cx="770" cy="170" r="9" />
           <text class="net-name" x="770" y="214" text-anchor="middle">Libertador</text>
-          <text class="net-time" x="770" y="230" text-anchor="middle">min 43</text>
+          <text class="net-time" x="770" y="230" text-anchor="middle">min 19</text>
 
           <!-- UCB (punto extra, cuadrado) con pulso al llegar -->
           <rect class="net-node net-node--dest" x="911" y="161" width="18" height="18" rx="4" />
@@ -190,7 +188,7 @@ const imagenes = {
             <animate attributeName="opacity" values="0;0;0.6;0;0" keyTimes="0;0.88;0.9;0.97;1" dur="13s" repeatCount="indefinite" />
           </circle>
           <text class="net-name" x="920" y="214" text-anchor="middle">UCB</text>
-          <text class="net-time" x="920" y="230" text-anchor="middle">min 48</text>
+          <text class="net-time" x="920" y="230" text-anchor="middle">min 24</text>
 
           <!-- ===== PERSONA CAMINANDO (Centro → Obelisco) ===== -->
           <g>
@@ -229,7 +227,7 @@ const imagenes = {
             </path>
           </g>
 
-          <!-- ===== CABINA DE TELEFÉRICO (Obelisco → Libertador, con paradas) ===== -->
+          <!-- ===== CABINA DE TELEFÉRICO CELESTE (con paradas) ===== -->
           <g>
             <animateTransform
               attributeName="transform"
@@ -248,16 +246,7 @@ const imagenes = {
             />
             <line class="icon-stroke" x1="0" y1="0" x2="0" y2="9" />
             <circle class="icon-wheel" cx="0" cy="0" r="3" />
-            <rect class="icon-stroke" x="-15" y="9" width="30" height="20" rx="5" fill="#9333ea">
-              <animate
-                attributeName="fill"
-                calcMode="discrete"
-                values="#9333ea;#9333ea;#94a3b8;#94a3b8;#eab308;#eab308"
-                keyTimes="0;0.3538;0.3846;0.5077;0.5385;1"
-                dur="13s"
-                repeatCount="indefinite"
-              />
-            </rect>
+            <rect class="icon-stroke" x="-15" y="9" width="30" height="20" rx="5" fill="#38bdf8" />
             <rect class="icon-window" x="-11" y="13" width="7" height="7" rx="1.5" />
             <rect class="icon-window" x="4" y="13" width="7" height="7" rx="1.5" />
           </g>
@@ -297,10 +286,9 @@ const imagenes = {
       </ul>
 
       <p class="network-note">
-        Ejemplo ilustrativo en escenario normal y sin contar las filas: el viaje combina una
-        caminata, tres tramos de teleférico y un minibús. Las 10 líneas de Mi Teleférico conectan
-        El Alto, la Ceja, el Centro y la Zona Sur con 26 estaciones, y el simulador pondera cada
-        tramo en minutos según el escenario activo.
+        Ejemplo ilustrativo de Centro a UCB: caminata hasta Del Prado, línea Celeste con paradas
+        en Del Teatro y Del Poeta hasta Libertador, y minibús a la UCB. El total estimado de 24 min
+        incluye 3 min de fila al abordar; el simulador ajusta los tiempos según el escenario activo.
       </p>
     </section>
 

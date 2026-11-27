@@ -87,14 +87,14 @@
     },
     {
       "id": "teatro-al-aire-libre",
-      "nombre": "Teatro al Aire Libre",
+      "nombre": "Del Teatro",
       "x": 660,
       "y": 268,
       "etiqueta": "izquierda"
     },
     {
       "id": "prado",
-      "nombre": "Prado",
+      "nombre": "Del Prado",
       "x": 583,
       "y": 222
     },
@@ -192,6 +192,15 @@
       "x": 575,
       "y": 300,
       "conexiones": [
+        {
+          "con": "prado",
+          "tipo": "caminata",
+          "min": {
+            "normal": 6,
+            "pico": 6,
+            "paro": 6
+          }
+        },
         {
           "con": "obelisco",
           "tipo": "caminata",
